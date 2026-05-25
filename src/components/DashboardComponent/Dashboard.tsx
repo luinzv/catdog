@@ -1,8 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { useLocation } from "react-router-dom";
+
 
 export default function DashboardComponent() {
-  const [formState, setFormState] = useState<"login" | "register">("login");
+  const [formState, setFormState] = useState("login");
+
+const location = useLocation();
+
+useEffect(() => {
+  if (location.state?.formType) {
+    setFormState(location.state.formType);
+  }
+}, [location.state]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
