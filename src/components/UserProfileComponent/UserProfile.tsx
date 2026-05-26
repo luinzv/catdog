@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 export default function UserProfile() {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100">
 
@@ -65,11 +66,11 @@ export default function UserProfile() {
             <div className="flex-1 text-center sm:text-left">
 
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Fernando Gonzalez
+                {user.nombre || "Anonimo"}
               </h1>
 
               <p className="text-gray-600 text-lg mb-6">
-                fernando.flores@gmail.com
+                {user.email || "correo@example.com"}
               </p>
 
               <button className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-md">
@@ -103,7 +104,7 @@ export default function UserProfile() {
                     </p>
 
                     <p className="text-sm font-semibold text-gray-900">
-                      fernando.flores@gmail.com
+                      {user.email || "correo@example.com"}
                     </p>
                   </div>
                 </div>

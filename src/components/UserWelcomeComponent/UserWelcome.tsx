@@ -8,7 +8,7 @@ export default function WelcomeScreen() {
       <div className="w-full lg:w-1/2 h-96 lg:h-screen relative overflow-hidden">
 
         <div
-          className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400"
+          className="absolute inset-0 bg-linear-to-r from-blue-600 via-blue-500 to-cyan-400"
           style={{
             backgroundImage:
               'url("https://images.unsplash.com/photo-1522276498395-f4f68f7f8454?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YWJyYXpvJTIwcGVycm98ZW58MHx8MHx8fDA%3D"), linear-gradient(135deg, #0ea4e900 0%, #06b5d400 100%)',
@@ -19,7 +19,7 @@ export default function WelcomeScreen() {
         >
 
           {/* DIFUMINADO */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-white/80 lg:to-white"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-transparent via-transparent to-white/80 lg:to-white"></div>
 
           {/* BLUR */}
           <div className="absolute inset-0 lg:backdrop-blur-[2px] pointer-events-none"></div>
@@ -28,14 +28,14 @@ export default function WelcomeScreen() {
       </div>
 
       {/* CONTENIDO */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 lg:py-0 bg-gradient-to-b lg:bg-gradient-to-r from-white to-blue-50/50">
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 lg:py-0 bg-linear-to-b lg:bg-linear-to-r from-white to-blue-50/50">
 
         <div className="max-w-md w-full">
 
           {/* LOGO */}
           <div className="flex justify-center mb-8">
 
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="w-16 h-16 bg-linear-to-br from-blue-500 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg">
 
               <svg
                 className="w-8 h-8 text-white"
@@ -61,7 +61,7 @@ export default function WelcomeScreen() {
           {/* BOTONES */}
           <div className="space-y-3">
 
-            <button onClick={() => navigate("/?", { state: { formType: "register" } })} className="w-full bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+            <button onClick={() => navigate("/?", { state: { formType: "register" } })} className="w-full bg-linear-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
               Unirse
             </button>
             <div className="user-profile">
@@ -81,31 +81,7 @@ export default function WelcomeScreen() {
 
             <div className="flex items-center justify-center gap-4">
 
-              <div className="text-center">
-
-                <p className="text-2xl font-bold text-gray-900">
-                  10K+
-                </p>
-
-                <p className="text-sm text-gray-600">
-                  Mascotas cuidadas
-                </p>
-
-              </div>
-
-              <div className="w-px h-12 bg-gray-200"></div>
-
-              <div className="text-center">
-
-                <p className="text-2xl font-bold text-gray-900">
-                  5K+
-                </p>
-
-                <p className="text-sm text-gray-600">
-                  Tutores felices
-                </p>
-
-              </div>
+          
 
             </div>
           </div>
