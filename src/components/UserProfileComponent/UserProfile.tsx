@@ -7,14 +7,20 @@ import {
   Shield,
   LogOut,
   Edit3,
-  Heart,
-  Dog,
   Cat,
   Cake,
 } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 export default function UserProfile() {
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  const handleLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+
+  navigate("/");
+};
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100">
 
@@ -96,7 +102,7 @@ export default function UserProfile() {
               <div className="space-y-4">
 
                 <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition">
-                  <Mail className="text-blue-600 flex-shrink-0" size={20} />
+                  <Mail className="text-blue-600 shrink-0" size={20} />
 
                   <div>
                     <p className="text-xs text-gray-600 font-medium">
@@ -110,7 +116,7 @@ export default function UserProfile() {
                 </div>
 
                 <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition">
-                  <Phone className="text-purple-600 flex-shrink-0" size={20} />
+                  <Phone className="text-purple-600 shrink-0" size={20} />
 
                   <div>
                     <p className="text-xs text-gray-600 font-medium">
@@ -124,7 +130,7 @@ export default function UserProfile() {
                 </div>
 
                 <div className="flex items-center gap-4 p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition">
-                  <MapPin className="text-orange-600 flex-shrink-0" size={20} />
+                  <MapPin className="text-orange-600 shrink-0" size={20} />
 
                   <div>
                     <p className="text-xs text-gray-600 font-medium">
@@ -177,7 +183,7 @@ export default function UserProfile() {
                   <span className="text-gray-400">→</span>
                 </button>
 
-                <button className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-transparent rounded-xl hover:from-purple-100 transition group">
+                <button className="w-full flex items-center justify-between p-4 bg-linear-to-r from-purple-50 to-transparent rounded-xl hover:from-purple-100 transition group">
                   <div className="flex items-center gap-3">
                     <Bell className="text-purple-600" size={20} />
                     <span className="font-semibold text-gray-900">
@@ -188,7 +194,7 @@ export default function UserProfile() {
                   <span className="text-gray-400">→</span>
                 </button>
 
-                <button className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-transparent rounded-xl hover:from-orange-100 transition group">
+                <button className="w-full flex items-center justify-between p-4 bg-linear-to-r from-orange-50 to-transparent rounded-xl hover:from-orange-100 transition group">
                   <div className="flex items-center gap-3">
                     <Shield className="text-orange-600" size={20} />
                     <span className="font-semibold text-gray-900">
@@ -199,12 +205,12 @@ export default function UserProfile() {
                   <span className="text-gray-400">→</span>
                 </button>
 
-                <button className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-transparent rounded-xl hover:from-red-100 transition group">
+                <button className="w-full flex items-center justify-between p-4 bg-linear-to-r from-red-50 to-transparent rounded-xl hover:from-red-100 transition group">
                   <div className="flex items-center gap-3">
                     <LogOut className="text-red-600" size={20} />
-                    <span className="font-semibold text-gray-900">
+                    <button className="font-semibold text-gray-900" onClick={handleLogout}>
                       Cerrar sesión
-                    </span>
+                    </button>
                   </div>
 
                   <span className="text-gray-400">→</span>
