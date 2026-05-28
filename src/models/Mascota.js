@@ -8,7 +8,7 @@ const mascotaSchema = new mongoose.Schema(
     peso: { type: Number },
     estadoSalud: { type: String, enum: ["Excelente","En tratamiento","Pendiente"], default: "Excelente" },
     descripcion: { type: String },
-    imagen: { type: String }, // URL o path de la foto
+    imagen: { type: String }, 
     propietario: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario", required: true },
   },
   { timestamps: true }

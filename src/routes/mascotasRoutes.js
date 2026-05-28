@@ -4,11 +4,11 @@ import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.use(authMiddleware); // todas rutas requieren token
+router.use(authMiddleware); 
 
-router.get("/", getMascotas); // listar mascotas del usuario
-router.post("/", createMascota); // crear nueva mascota
-router.put("/:id", updateMascota); // editar
-router.delete("/:id", deleteMascota); // eliminar
+router.get("/", getMascotas); 
+router.post("/", createMascota); 
+router.put("/:id", updateMascota);
+router.delete("/:id", deleteMascota); 
 
 export default router;
