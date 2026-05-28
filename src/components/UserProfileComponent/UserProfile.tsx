@@ -208,9 +208,9 @@ export default function UserProfile() {
                 <button className="w-full flex items-center justify-between p-4 bg-linear-to-r from-red-50 to-transparent rounded-xl hover:from-red-100 transition group">
                   <div className="flex items-center gap-3">
                     <LogOut className="text-red-600" size={20} />
-                    <button className="font-semibold text-gray-900" onClick={handleLogout}>
+                    <span className="font-semibold text-gray-900" onClick={handleLogout}>
                       Cerrar sesión
-                    </button>
+                    </span>
                   </div>
 
                   <span className="text-gray-400">→</span>

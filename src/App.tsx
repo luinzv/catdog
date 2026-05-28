@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css'
-import {Dashboard, UserProfile, PetMedicalRecord, PetReminders, UserWelcome} from './components/index';
+import {Dashboard, UserProfile, PetMedicalRecord, PetReminders, UserWelcome, PetProfile} from './components/index';
 import PrivateRoute from './routes/PrivateRoute';
 function App() {
 
@@ -22,6 +22,11 @@ function App() {
          <Route path="/recordatorios" element={
           <PrivateRoute>
             <PetReminders />
+          </PrivateRoute>
+        } />
+        <Route path="/mascotas" element={
+          <PrivateRoute>
+            <PetProfile />
           </PrivateRoute>
         } />
       </Routes>
