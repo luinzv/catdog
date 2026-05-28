@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 export default function PetsPage() {
   const [showModalPetCreate, setShowModalPetCreate] = useState(false);
+  const [showModalEditPet, setShowModalEditPet] = useState(false);
 
   const [nombre, setNombre] = useState("");
   const [tipo, setTipo] = useState("");
@@ -20,38 +21,130 @@ export default function PetsPage() {
   const [descripcion, setDescripcion] = useState("");
   const [imagen, setImagen] = useState("");
   const [mascotas, setMascotas] = useState([]);
+  const [selectedMascota, setSelectedMascota] = useState<any | null>(null);
 
-  useEffect(() => {
+  const openEditModal = (mascota: any) => {
+    setSelectedMascota(mascota);
+    setNombre(mascota.nombre || "");
+    setTipo(mascota.tipo || "");
+    setEdad(String(mascota.edad ?? ""));
+    setPeso(String(mascota.peso ?? ""));
+    setShowModalEditPet(true);
+  };
 
-  const obtenerMascotas = async () => {
+  // Guardar cambios
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!nombre.trim() || !tipo.trim() || !edad || !peso) {
+      console.error("Todos los campos son requeridos");
+      return;
+    }
 
     try {
-
       const token = localStorage.getItem("token");
 
+      if (!selectedMascota) {
+        console.error("No hay mascota seleccionada");
+        return;
+      }
+
       const response = await fetch(
-        "http://localhost:4000/api/mascotas",
+        `http://localhost:4000/api/mascotas/${selectedMascota._id}`,
         {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            nombre,
+            tipo,
+            edad: Number(edad),
+            peso: Number(peso),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.msg || "Error al actualizar mascota");
+      }
+
+      console.log("Mascota actualizada:", data);
+      setShowModalEditPet(false);
+      setNombre("");
+      setTipo("");
+      setEdad("");
+      setPeso("");
+      setSelectedMascota(null);
+
+    } catch (error) {
+      console.error("Error al guardar mascota:", error);
+    }
+  };
+
+  // Eliminar mascota
+  const handleDelete = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!selectedMascota) return;
+
+      const response = await fetch(
+        `http://localhost:4000/api/mascotas/${selectedMascota._id}`,
+        {
+          method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      const data = await response.json();
+      if (!response.ok) throw new Error("Error al eliminar mascota");
 
-      setMascotas(data);
+      console.log("Mascota eliminada");
+
+      setShowModalEditPet(false);
 
     } catch (error) {
-
       console.error(error);
-
     }
   };
 
-  obtenerMascotas();
 
-}, []);
+  useEffect(() => {
+
+    const obtenerMascotas = async () => {
+
+      try {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(
+          "http://localhost:4000/api/mascotas",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        setMascotas(data);
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+    };
+
+    obtenerMascotas();
+
+  }, []);
 
 
   const handleCreateMascota = async (e: React.FormEvent) => {
@@ -259,95 +352,213 @@ export default function PetsPage() {
           {/* CARD MASCOTA */}
           {mascotas.map((mascota: any) => (
 
-    <div
-      key={mascota._id}
-      className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-105 border border-slate-100 group"
-    >
+            <div
+              key={mascota._id}
+              className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-105 border border-slate-100 group"
+            >
 
-      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
 
-        <img
-          src={
-            mascota.imagen ||
-            "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=500&h=500&fit=crop"
-          }
-          alt={mascota.nombre}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-        />
+                <img
+                  src={
+                    mascota.imagen ||
+                    "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=500&h=500&fit=crop"
+                  }
+                  alt={mascota.nombre}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                />
 
-      </div>
+              </div>
 
-      <div className="p-6">
+              <div className="p-6">
 
-        <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-3">
 
-          <div>
+                  <div>
 
-            <h3 className="text-2xl font-bold text-slate-900">
-              {mascota.nombre}
-            </h3>
+                    <h3 className="text-2xl font-bold text-slate-900">
+                      {mascota.nombre}
+                    </h3>
 
-            <p className="text-sm text-slate-500 mt-1">
-              {mascota.tipo}
-            </p>
+                    <p className="text-sm text-slate-500 mt-1">
+                      {mascota.tipo}
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mb-6 pb-6 border-b border-slate-100">
+
+                  <div className="bg-blue-50 rounded-2xl p-3">
+
+                    <p className="text-xs text-slate-600 font-medium">
+                      Edad
+                    </p>
+
+                    <p className="text-lg font-bold text-blue-600 mt-1">
+                      {mascota.edad} años
+                    </p>
+
+                  </div>
+
+                  <div className="bg-cyan-50 rounded-2xl p-3">
+
+                    <p className="text-xs text-slate-600 font-medium">
+                      Peso
+                    </p>
+
+                    <p className="text-lg font-bold text-cyan-600 mt-1">
+                      {mascota.peso} kg
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div className="flex gap-2">
+
+                  <button className="flex-1 rounded-xl border border-slate-200 hover:bg-slate-50 px-3 py-2 flex items-center justify-center gap-1 text-sm font-medium transition">
+                    <Eye className="w-4 h-4" />
+                    Perfil
+                  </button>
+
+                  <button className="flex-1 rounded-xl border border-slate-200 hover:bg-slate-50 px-3 py-2 flex items-center justify-center gap-1 text-sm font-medium transition">
+                    <FileText className="w-4 h-4" />
+                    Ficha
+                  </button>
+
+                  <button
+                    onClick={() => openEditModal(mascota)}
+                    className="flex-1 rounded-xl border border-slate-200 hover:bg-slate-50 px-3 py-2 flex items-center justify-center gap-1 text-sm font-medium transition"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    Editar
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+
+          ))}
+        </div>
+
+        {/* MODAL EDITAR MASCOTA */}
+        {showModalEditPet && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+
+            <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6">
+
+              {/* HEADER */}
+              <div className="flex items-center justify-between mb-6">
+
+                <h2 className="text-2xl font-bold text-slate-900">
+                  Editar Mascota
+                </h2>
+
+                <button
+                  onClick={() => setShowModalEditPet(false)}
+                  className="text-slate-500 hover:text-slate-700 text-xl"
+                >
+                  ✕
+                </button>
+
+              </div>
+
+              {/* FORM */}
+              <form className="space-y-4" onSubmit={handleSave}>
+
+                {/* NOMBRE */}
+                <div>
+
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Nombre
+                  </label>
+
+                  <input
+                    type="text"
+                    placeholder="Nombre"
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" onChange={(e) => setNombre(e.target.value)} value={nombre}
+                  />
+
+                </div>
+
+                {/* TIPO */}
+                <div>
+
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Tipo
+                  </label>
+
+                  <select className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" onChange={(e) => setTipo(e.target.value)} value={tipo}>
+
+                    <option>Perro</option>
+                    <option>Gato</option>
+
+                  </select>
+
+                </div>
+
+                {/* EDAD */}
+                <div>
+
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Edad
+                  </label>
+
+                  <input
+                    type="number"
+                    placeholder="Edad"
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    onChange={(e) => setEdad(e.target.value)}
+                    value={edad}
+                  />
+
+                </div>
+
+                {/* PESO */}
+                <div>
+
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Peso
+                  </label>
+
+                  <input
+                    type="number"
+                    placeholder="Peso"
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    onChange={(e) => setPeso(e.target.value)}
+                    value={peso}
+                  />
+
+                </div>
+
+                {/* BOTONES */}
+                <div className="flex gap-3 pt-4">
+
+                  <button onClick={handleDelete}
+                    type="button"
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl transition"
+                  >
+                    Eliminar
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition"
+                  >
+                    Guardar
+                  </button>
+
+                </div>
+
+              </form>
+
+            </div>
 
           </div>
-
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 mb-6 pb-6 border-b border-slate-100">
-
-          <div className="bg-blue-50 rounded-2xl p-3">
-
-            <p className="text-xs text-slate-600 font-medium">
-              Edad
-            </p>
-
-            <p className="text-lg font-bold text-blue-600 mt-1">
-              {mascota.edad} años
-            </p>
-
-          </div>
-
-          <div className="bg-cyan-50 rounded-2xl p-3">
-
-            <p className="text-xs text-slate-600 font-medium">
-              Peso
-            </p>
-
-            <p className="text-lg font-bold text-cyan-600 mt-1">
-              {mascota.peso} kg
-            </p>
-
-          </div>
-
-        </div>
-
-        <div className="flex gap-2">
-
-          <button className="flex-1 rounded-xl border border-slate-200 hover:bg-slate-50 px-3 py-2 flex items-center justify-center gap-1 text-sm font-medium transition">
-            <Eye className="w-4 h-4" />
-            Perfil
-          </button>
-
-          <button className="flex-1 rounded-xl border border-slate-200 hover:bg-slate-50 px-3 py-2 flex items-center justify-center gap-1 text-sm font-medium transition">
-            <FileText className="w-4 h-4" />
-            Ficha
-          </button>
-
-          <button className="flex-1 rounded-xl border border-slate-200 hover:bg-slate-50 px-3 py-2 flex items-center justify-center gap-1 text-sm font-medium transition">
-            <Edit2 className="w-4 h-4" />
-            Editar
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  ))}
-        </div>
+        )}
 
       </main>
     </div>
