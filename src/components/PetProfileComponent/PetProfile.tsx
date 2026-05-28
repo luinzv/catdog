@@ -9,6 +9,18 @@ import {
   Eye,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+
+type Mascota = {
+  _id: string;
+  nombre: string;
+  tipo: string;
+  edad: number;
+  peso: number;
+  estadoSalud?: string;
+  descripcion?: string;
+  imagen?: string;
+};
+
 export default function PetsPage() {
   const [showModalPetCreate, setShowModalPetCreate] = useState(false);
   const [showModalEditPet, setShowModalEditPet] = useState(false);
@@ -20,10 +32,22 @@ export default function PetsPage() {
   const [estadoSalud, setEstadoSalud] = useState("Excelente");
   const [descripcion, setDescripcion] = useState("");
   const [imagen, setImagen] = useState("");
-  const [mascotas, setMascotas] = useState([]);
-  const [selectedMascota, setSelectedMascota] = useState<any | null>(null);
 
-  const openEditModal = (mascota: any) => {
+  const [mascotas, setMascotas] = useState<Mascota[]>([]);
+  const [selectedMascota, setSelectedMascota] = useState<Mascota | null>(null);
+
+  const limpiarFormulario = () => {
+    setNombre("");
+    setTipo("");
+    setEdad("");
+    setPeso("");
+    setEstadoSalud("Excelente");
+    setDescripcion("");
+    setImagen("");
+    setSelectedMascota(null);
+  };
+
+  const openEditModal = (mascota: Mascota) => {
     setSelectedMascota(mascota);
     setNombre(mascota.nombre || "");
     setTipo(mascota.tipo || "");
@@ -32,123 +56,39 @@ export default function PetsPage() {
     setShowModalEditPet(true);
   };
 
-  // Guardar cambios
-  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+  const obtenerMascotas = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch("http://localhost:4000/api/mascotas", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.msg || "Error al obtener mascotas");
+      }
+
+      setMascotas(data);
+    } catch (error) {
+      console.error("Error obteniendo mascotas:", error);
+    }
+  };
+
+  useEffect(() => {
+    obtenerMascotas();
+  }, []);
+
+  const handleCreateMascota = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!nombre.trim() || !tipo.trim() || !edad || !peso) {
       console.error("Todos los campos son requeridos");
       return;
     }
-
-    try {
-      const token = localStorage.getItem("token");
-
-      if (!selectedMascota) {
-        console.error("No hay mascota seleccionada");
-        return;
-      }
-
-      const response = await fetch(
-        `http://localhost:4000/api/mascotas/${selectedMascota._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            nombre,
-            tipo,
-            edad: Number(edad),
-            peso: Number(peso),
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.msg || "Error al actualizar mascota");
-      }
-
-      console.log("Mascota actualizada:", data);
-      setShowModalEditPet(false);
-      setNombre("");
-      setTipo("");
-      setEdad("");
-      setPeso("");
-      setSelectedMascota(null);
-
-    } catch (error) {
-      console.error("Error al guardar mascota:", error);
-    }
-  };
-
-  // Eliminar mascota
-  const handleDelete = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      if (!selectedMascota) return;
-
-      const response = await fetch(
-        `http://localhost:4000/api/mascotas/${selectedMascota._id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("Error al eliminar mascota");
-
-      console.log("Mascota eliminada");
-
-      setShowModalEditPet(false);
-
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-
-  useEffect(() => {
-
-    const obtenerMascotas = async () => {
-
-      try {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(
-          "http://localhost:4000/api/mascotas",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = await response.json();
-
-        setMascotas(data);
-
-      } catch (error) {
-
-        console.error(error);
-
-      }
-    };
-
-    obtenerMascotas();
-
-  }, []);
-
-
-  const handleCreateMascota = async (e: React.FormEvent) => {
-    e.preventDefault();
 
     const token = localStorage.getItem("token");
 
@@ -180,45 +120,146 @@ export default function PetsPage() {
 
       console.log("Mascota creada:", data);
 
-      setNombre("");
-      setTipo("");
-      setEdad("");
-      setPeso("");
-      setEstadoSalud("Excelente");
-      setDescripcion("");
-      setImagen("");
+      // Actualiza la lista inmediatamente
+      setMascotas((prev) => [...prev, data]);
 
+      limpiarFormulario();
       setShowModalPetCreate(false);
     } catch (error) {
       console.error("Error creando mascota:", error);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-cyan-50">
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
+    if (!selectedMascota) {
+      console.error("No hay mascota seleccionada");
+      return;
+    }
+
+    if (!nombre.trim() || !tipo.trim() || !edad || !peso) {
+      console.error("Todos los campos son requeridos");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `http://localhost:4000/api/mascotas/${selectedMascota._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            nombre,
+            tipo,
+            edad: Number(edad),
+            peso: Number(peso),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.msg || "Error al actualizar mascota");
+      }
+
+      console.log("Mascota actualizada:", data);
+
+      // Actualiza la tarjeta inmediatamente
+      setMascotas((prev) =>
+        prev.map((mascota) =>
+          mascota._id === selectedMascota._id ? data : mascota
+        )
+      );
+
+      limpiarFormulario();
+      setShowModalEditPet(false);
+    } catch (error) {
+      console.error("Error al guardar mascota:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedMascota) {
+      console.error("No hay mascota seleccionada");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `http://localhost:4000/api/mascotas/${selectedMascota._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al eliminar mascota");
+      }
+
+      console.log("Mascota eliminada");
+
+      // Elimina la tarjeta inmediatamente
+      setMascotas((prev) =>
+        prev.filter((mascota) => mascota._id !== selectedMascota._id)
+      );
+
+      limpiarFormulario();
+      setShowModalEditPet(false);
+    } catch (error) {
+      console.error("Error al eliminar mascota:", error);
+    }
+  };
+
+  const mascotasSaludables = mascotas.filter(
+    (mascota) => mascota.estadoSalud === "Excelente"
+  ).length;
+
+  const mascotasTratamiento = mascotas.filter(
+    (mascota) => mascota.estadoSalud === "En tratamiento"
+  ).length;
+
+  const mascotasPendientes = mascotas.filter(
+    (mascota) => mascota.estadoSalud === "Pendiente"
+  ).length;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
       {/* HEADER */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-
             <div>
-
-
               <h1 className="text-4xl md:text-5xl font-bold text-slate-900">
                 Mis Mascotas
               </h1>
             </div>
 
-            <button onClick={() => setShowModalPetCreate(true)} className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-6 py-3 flex items-center gap-2 transition-all">
+            <button
+              onClick={() => {
+                limpiarFormulario();
+                setShowModalPetCreate(true);
+              }}
+              className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-6 py-3 flex items-center gap-2 transition-all"
+            >
               <Plus className="w-5 h-5" />
               Agregar Mascota
             </button>
-
           </div>
         </div>
       </header>
+
       {/* MODAL CREAR MASCOTA */}
       {showModalPetCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
@@ -236,13 +277,15 @@ export default function PetsPage() {
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-300"
               />
 
-              <input
-                type="text"
-                placeholder="Tipo: Perro o Gato"
+              <select
                 value={tipo}
                 onChange={(e) => setTipo(e.target.value)}
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-300"
-              />
+              >
+                <option value="">Selecciona tipo</option>
+                <option value="Perro">Perro</option>
+                <option value="Gato">Gato</option>
+              </select>
 
               <input
                 type="number"
@@ -260,6 +303,24 @@ export default function PetsPage() {
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-300"
               />
 
+              <select
+                value={estadoSalud}
+                onChange={(e) => setEstadoSalud(e.target.value)}
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-300"
+              >
+                <option value="Excelente">Excelente</option>
+                <option value="En tratamiento">En tratamiento</option>
+                <option value="Pendiente">Pendiente</option>
+              </select>
+
+              <input
+                type="text"
+                placeholder="URL de imagen"
+                value={imagen}
+                onChange={(e) => setImagen(e.target.value)}
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-300"
+              />
+
               <textarea
                 placeholder="Descripción"
                 value={descripcion}
@@ -270,7 +331,10 @@ export default function PetsPage() {
               <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowModalPetCreate(false)}
+                  onClick={() => {
+                    limpiarFormulario();
+                    setShowModalPetCreate(false);
+                  }}
                   className="px-5 py-2 rounded-xl bg-gray-100 text-gray-700 font-semibold"
                 >
                   Cancelar
@@ -287,16 +351,19 @@ export default function PetsPage() {
           </div>
         </div>
       )}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* ESTADÍSTICAS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-600 text-sm font-medium">Total Mascotas</p>
-                <p className="text-4xl font-bold text-slate-900 mt-1">4</p>
+                <p className="text-slate-600 text-sm font-medium">
+                  Total Mascotas
+                </p>
+                <p className="text-4xl font-bold text-slate-900 mt-1">
+                  {mascotas.length}
+                </p>
               </div>
 
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -308,8 +375,12 @@ export default function PetsPage() {
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-600 text-sm font-medium">Saludables</p>
-                <p className="text-4xl font-bold text-emerald-600 mt-1">2</p>
+                <p className="text-slate-600 text-sm font-medium">
+                  Saludables
+                </p>
+                <p className="text-4xl font-bold text-emerald-600 mt-1">
+                  {mascotasSaludables}
+                </p>
               </div>
 
               <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -321,8 +392,12 @@ export default function PetsPage() {
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-600 text-sm font-medium">Revisión Pendiente</p>
-                <p className="text-4xl font-bold text-blue-600 mt-1">1</p>
+                <p className="text-slate-600 text-sm font-medium">
+                  Revisión Pendiente
+                </p>
+                <p className="text-4xl font-bold text-blue-600 mt-1">
+                  {mascotasPendientes}
+                </p>
               </div>
 
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -334,8 +409,12 @@ export default function PetsPage() {
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-600 text-sm font-medium">En Tratamiento</p>
-                <p className="text-4xl font-bold text-amber-600 mt-1">1</p>
+                <p className="text-slate-600 text-sm font-medium">
+                  En Tratamiento
+                </p>
+                <p className="text-4xl font-bold text-amber-600 mt-1">
+                  {mascotasTratamiento}
+                </p>
               </div>
 
               <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
@@ -343,22 +422,16 @@ export default function PetsPage() {
               </div>
             </div>
           </div>
-
         </div>
 
         {/* GRID MASCOTAS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-
-          {/* CARD MASCOTA */}
-          {mascotas.map((mascota: any) => (
-
+          {mascotas.map((mascota) => (
             <div
               key={mascota._id}
               className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-105 border border-slate-100 group"
             >
-
               <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
-
                 <img
                   src={
                     mascota.imagen ||
@@ -367,15 +440,11 @@ export default function PetsPage() {
                   alt={mascota.nombre}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />
-
               </div>
 
               <div className="p-6">
-
                 <div className="flex items-start justify-between mb-3">
-
                   <div>
-
                     <h3 className="text-2xl font-bold text-slate-900">
                       {mascota.nombre}
                     </h3>
@@ -383,15 +452,11 @@ export default function PetsPage() {
                     <p className="text-sm text-slate-500 mt-1">
                       {mascota.tipo}
                     </p>
-
                   </div>
-
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 mb-6 pb-6 border-b border-slate-100">
-
                   <div className="bg-blue-50 rounded-2xl p-3">
-
                     <p className="text-xs text-slate-600 font-medium">
                       Edad
                     </p>
@@ -399,11 +464,9 @@ export default function PetsPage() {
                     <p className="text-lg font-bold text-blue-600 mt-1">
                       {mascota.edad} años
                     </p>
-
                   </div>
 
                   <div className="bg-cyan-50 rounded-2xl p-3">
-
                     <p className="text-xs text-slate-600 font-medium">
                       Peso
                     </p>
@@ -411,13 +474,10 @@ export default function PetsPage() {
                     <p className="text-lg font-bold text-cyan-600 mt-1">
                       {mascota.peso} kg
                     </p>
-
                   </div>
-
                 </div>
 
                 <div className="flex gap-2">
-
                   <button className="flex-1 rounded-xl border border-slate-200 hover:bg-slate-50 px-3 py-2 flex items-center justify-center gap-1 text-sm font-medium transition">
                     <Eye className="w-4 h-4" />
                     Perfil
@@ -436,42 +496,33 @@ export default function PetsPage() {
                     Editar
                   </button>
                 </div>
-
               </div>
-
             </div>
-
           ))}
         </div>
 
         {/* MODAL EDITAR MASCOTA */}
         {showModalEditPet && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-
             <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6">
-
-              {/* HEADER */}
               <div className="flex items-center justify-between mb-6">
-
                 <h2 className="text-2xl font-bold text-slate-900">
                   Editar Mascota
                 </h2>
 
                 <button
-                  onClick={() => setShowModalEditPet(false)}
+                  onClick={() => {
+                    limpiarFormulario();
+                    setShowModalEditPet(false);
+                  }}
                   className="text-slate-500 hover:text-slate-700 text-xl"
                 >
                   ✕
                 </button>
-
               </div>
 
-              {/* FORM */}
               <form className="space-y-4" onSubmit={handleSave}>
-
-                {/* NOMBRE */}
                 <div>
-
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Nombre
                   </label>
@@ -479,30 +530,28 @@ export default function PetsPage() {
                   <input
                     type="text"
                     placeholder="Nombre"
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" onChange={(e) => setNombre(e.target.value)} value={nombre}
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    onChange={(e) => setNombre(e.target.value)}
+                    value={nombre}
                   />
-
                 </div>
 
-                {/* TIPO */}
                 <div>
-
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Tipo
                   </label>
 
-                  <select className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" onChange={(e) => setTipo(e.target.value)} value={tipo}>
-
-                    <option>Perro</option>
-                    <option>Gato</option>
-
+                  <select
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    onChange={(e) => setTipo(e.target.value)}
+                    value={tipo}
+                  >
+                    <option value="Perro">Perro</option>
+                    <option value="Gato">Gato</option>
                   </select>
-
                 </div>
 
-                {/* EDAD */}
                 <div>
-
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Edad
                   </label>
@@ -514,12 +563,9 @@ export default function PetsPage() {
                     onChange={(e) => setEdad(e.target.value)}
                     value={edad}
                   />
-
                 </div>
 
-                {/* PESO */}
                 <div>
-
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Peso
                   </label>
@@ -531,13 +577,11 @@ export default function PetsPage() {
                     onChange={(e) => setPeso(e.target.value)}
                     value={peso}
                   />
-
                 </div>
 
-                {/* BOTONES */}
                 <div className="flex gap-3 pt-4">
-
-                  <button onClick={handleDelete}
+                  <button
+                    onClick={handleDelete}
                     type="button"
                     className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl transition"
                   >
@@ -550,16 +594,11 @@ export default function PetsPage() {
                   >
                     Guardar
                   </button>
-
                 </div>
-
               </form>
-
             </div>
-
           </div>
         )}
-
       </main>
     </div>
   );
