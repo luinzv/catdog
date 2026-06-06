@@ -22,7 +22,12 @@ export default function PetMedicalRecord() {
   const [vacunaNombre, setVacunaNombre] = useState("");
   const [alergiaTipo, setAlergiaTipo] = useState("");
   const [alergiaGravedad, setAlergiaGravedad] = useState("");
-
+  const [showModalEditMedical, setShowModalEditMedical] = useState(false);
+  const [showModalEditPet, setShowModalEditPet] = useState(false);
+  const [editEdad, setEditEdad] = useState(0);
+  const [editPeso, setEditPeso] = useState(0);
+  const [editEstadoSalud, setEditEstadoSalud] = useState("");
+  const [recordatorios, setRecordatorios] = useState<any[]>([]);
   const agregarVacuna = async () => {
     if (!vacunaNombre) return;
     try {
@@ -45,7 +50,60 @@ export default function PetMedicalRecord() {
       console.error("Error agregando vacuna:", error);
     }
   };
+  useEffect(() => {
+    const obtenerRecordatorios = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
+        const response = await fetch(
+          `http://localhost:4000/api/recordatorios/mascota/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+        console.log("Recordatorios:", data);
+        setRecordatorios(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    obtenerRecordatorios();
+  }, [id]);
+
+  const actualizarMascota = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `http://localhost:4000/api/mascotas/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            edad: editEdad,
+            peso: editPeso,
+            estadoSalud: editEstadoSalud,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setMascota(data);
+      setShowModalEditPet(false);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const agregarAlergia = async () => {
     if (!alergiaTipo || !alergiaGravedad) return;
     try {
@@ -128,7 +186,17 @@ export default function PetMedicalRecord() {
     setAlergiaTipo("");
     setAlergiaGravedad("");
   };
+  const proximaVacuna = recordatorios.find(
+  (r) =>
+    r.tipo?.toLowerCase().includes("vacuna") &&
+    r.estado?.toLowerCase() === "pendiente"
+);
 
+  const proximoControl = recordatorios.find(
+    (r) =>
+      r.tipo?.toLowerCase().includes("control") &&
+      r.estado?.toLowerCase() === "pendiente"
+  );
   if (!mascota) {
     return <div>Cargando...</div>;
   }
@@ -236,11 +304,34 @@ export default function PetMedicalRecord() {
                       {mascota.peso} kg
                     </p>
                   </div>
+                  <div className="bg-linear-to-br from-green-50 to-green-100 p-3 rounded-lg">
+                    <p className="text-gray-600 text-sm font-medium">
+                      Vacunas Aplicadas
+                    </p>
+
+                    <p className="text-gray-900 text-lg font-bold">
+                      {vacunas.length}
+                    </p>
+                  </div>
+                  <div className="bg-linear-to-br from-yellow-50 to-yellow-100 p-3 rounded-lg">
+                    <p className="text-gray-600 text-sm font-medium">
+                      Alergias Registradas
+                    </p>
+
+                    <p className="text-gray-900 text-lg font-bold">
+                      {alergias.length}
+                    </p>
+                  </div>
 
                 </div>
               </div>
 
-              <button className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2">
+              <button onClick={() => {
+                setEditEdad(mascota.edad);
+                setEditPeso(mascota.peso);
+                setEditEstadoSalud(mascota.estadoSalud);
+                setShowModalEditPet(true);
+              }} className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2">
 
                 <Edit3 className="w-4 h-4" />
                 Editar ficha
@@ -278,7 +369,7 @@ export default function PetMedicalRecord() {
                 <p>Sin vacunas aplicadas</p>
               ) : (
                 vacunas.map((vacuna) => (
-                  <div key={vacuna._id }>
+                  <div key={vacuna._id}>
                     <h4 className="font-semibold">{vacuna.nombre}</h4>
                   </div>
                 ))
@@ -362,7 +453,9 @@ export default function PetMedicalRecord() {
               </h3>
 
               <p className="text-white/90 text-sm">
-                15 de agosto
+                {proximaVacuna
+                  ? new Date(proximaVacuna.fecha).toLocaleDateString()
+                  : "Sin vacunas pendientes"}
               </p>
 
             </div>
@@ -376,7 +469,9 @@ export default function PetMedicalRecord() {
               </h3>
 
               <p className="text-white/90 text-sm">
-                20 de junio
+                {proximoControl
+                  ? new Date(proximoControl.fecha).toLocaleDateString()
+                  : "Sin controles pendientes"}
               </p>
 
             </div>
@@ -395,7 +490,7 @@ export default function PetMedicalRecord() {
 
           </button>
 
-          <button className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+          <button onClick={() => setShowModalEditMedical(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
 
             <Edit3 className="w-5 h-5" />
             Editar
@@ -403,6 +498,163 @@ export default function PetMedicalRecord() {
           </button>
 
         </div>
+        {showModalEditMedical && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Editar Historial Médico
+              </h2>
+
+              <div className="space-y-4">
+                {/* VACUNAS */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Vacunas</h3>
+                  {vacunas.length === 0 ? (
+                    <p className="text-gray-500 text-sm">Sin vacunas registradas</p>
+                  ) : (
+                    vacunas.map((v) => (
+                      <div key={v._id} className="flex items-center justify-between mb-2">
+                        <span>{v.nombre}</span>
+                        <button
+                          className="px-2 py-1 bg-red-500 text-white rounded"
+                          onClick={async () => {
+                            try {
+                              const token = localStorage.getItem("token");
+                              await fetch(`http://localhost:4000/api/vacunas/${v._id}`, {
+                                method: "DELETE",
+                                headers: { Authorization: `Bearer ${token}` },
+                              });
+                              setVacunas(vacunas.filter((vac) => vac._id !== v._id));
+                            } catch (error) {
+                              console.error(error);
+                            }
+                          }}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* ALERGIAS */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Alergias</h3>
+                  {alergias.length === 0 ? (
+                    <p className="text-gray-500 text-sm">Sin alergias registradas</p>
+                  ) : (
+                    alergias.map((a) => (
+                      <div key={a._id} className="flex items-center justify-between mb-2">
+                        <span>{a.tipo} ({a.gravedad})</span>
+                        <button
+                          className="px-2 py-1 bg-red-500 text-white rounded"
+                          onClick={async () => {
+                            try {
+                              const token = localStorage.getItem("token");
+                              await fetch(`http://localhost:4000/api/alergias/${a._id}`, {
+                                method: "DELETE",
+                                headers: { Authorization: `Bearer ${token}` },
+                              });
+                              setAlergias(alergias.filter((al) => al._id !== a._id));
+                            } catch (error) {
+                              console.error(error);
+                            }
+                          }}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <button
+                    className="px-5 py-2 rounded-xl bg-gray-100 text-gray-700 font-semibold"
+                    onClick={() => setShowModalEditMedical(false)}
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {showModalEditPet && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+
+              <h2 className="text-2xl font-bold mb-4">
+                Editar Ficha Médica
+              </h2>
+
+              <div className="space-y-4">
+
+                <div>
+                  <label className="block mb-1 font-medium">
+                    Edad
+                  </label>
+
+                  <input
+                    type="number"
+                    value={editEdad}
+                    onChange={(e) => setEditEdad(Number(e.target.value))}
+                    className="w-full border rounded-xl px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 font-medium">
+                    Peso
+                  </label>
+
+                  <input
+                    type="number"
+                    value={editPeso}
+                    onChange={(e) => setEditPeso(Number(e.target.value))}
+                    className="w-full border rounded-xl px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 font-medium">
+                    Estado de Salud
+                  </label>
+
+                  <select
+                    value={editEstadoSalud}
+                    onChange={(e) => setEditEstadoSalud(e.target.value)}
+                    className="w-full border rounded-xl px-3 py-2"
+                  >
+                    <option value="Excelente">Excelente</option>
+                    <option value="En tratamiento">En tratamiento</option>
+                    <option value="Pendiente">Pendiente</option>
+                  </select>
+                </div>
+
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+
+                <button
+                  onClick={() => setShowModalEditPet(false)}
+                  className="px-5 py-2 rounded-xl bg-gray-100"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  onClick={actualizarMascota}
+                  className="px-5 py-2 rounded-xl bg-blue-600 text-white"
+                >
+                  Guardar
+                </button>
+
+              </div>
+
+            </div>
+          </div>
+        )}
         {showModalAddMedical && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">

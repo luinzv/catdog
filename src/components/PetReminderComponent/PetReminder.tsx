@@ -1,8 +1,156 @@
 import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function PetReminders() {
+  const [recordatorios, setRecordatorios] = useState<any[]>([]);
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [editarModal, setEditarModal] = useState(false);
+
+  const [titulo, setTitulo] = useState("");
+  const [mascota, setMascota] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [tipo, setTipo] = useState("Vacuna");
+  const [editarId, setEditarId] = useState<string | null>(null);
+
+  useEffect(() => {
+    obtenerRecordatorios();
+  }, []);
+
+  const obtenerRecordatorios = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        "http://localhost:4000/api/recordatorios",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      setRecordatorios(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const crearRecordatorio = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        "http://localhost:4000/api/recordatorios",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            titulo,
+            mascota,
+            fecha,
+            tipo,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setRecordatorios([...recordatorios, data]);
+
+      setTitulo("");
+      setMascota("");
+      setFecha("");
+      setTipo("Vacuna");
+
+      setMostrarModal(false);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const completarRecordatorio = async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `http://localhost:4000/api/recordatorios/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            estado: "Completado",
+          }),
+        }
+      );
+
+      const actualizado = await response.json();
+
+      setRecordatorios(
+        recordatorios.map((r) =>
+          r._id === actualizado._id ? actualizado : r
+        )
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const editarRecordatorio = (recordatorio: any) => {
+    setEditarId(recordatorio._id);
+    setTitulo(recordatorio.titulo);
+    setMascota(typeof recordatorio.mascota === "object" ? recordatorio.mascota.nombre : recordatorio.mascota);
+    setFecha(recordatorio.fecha.slice(0, 10)); // yyyy-mm-dd
+    setTipo(recordatorio.tipo);
+    setEditarModal(true);
+  };
+
+  const guardarEdicion = async () => {
+    if (!editarId) return;
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:4000/api/recordatorios/${editarId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ titulo, mascota, fecha, tipo }),
+      });
+      const actualizado = await response.json();
+      setRecordatorios(recordatorios.map(r => r._id === actualizado._id ? actualizado : r));
+      setEditarModal(false);
+      setEditarId(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const eliminarRecordatorio = async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`http://localhost:4000/api/recordatorios/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRecordatorios(recordatorios.filter(r => r._id !== id));
+      setEditarModal(false);
+      setEditarId(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const pendientes = recordatorios.filter(
+    (r) => r.estado === "Pendiente"
+  );
+
+  const completados = recordatorios.filter(
+    (r) => r.estado === "Completado"
+  );
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100">
 
       <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
 
@@ -22,7 +170,7 @@ export default function PetReminders() {
         {/* BOTÓN CREAR */}
         <div className="flex justify-start mb-8">
 
-          <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
+          <button onClick={() => setMostrarModal(true)} className="px-6 py-3 bg-linear-to-r from-blue-500 to-cyan-500 text-white font-semibold rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
 
             <Plus className="w-5 h-5" />
             Nuevo Recordatorio
@@ -35,7 +183,7 @@ export default function PetReminders() {
         <div className="mb-10">
 
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-
+            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
             Pendientes
 
           </h2>
@@ -43,90 +191,46 @@ export default function PetReminders() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
             {/* CARD */}
-            <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            {pendientes.map((recordatorio) => (
+              <div
+                key={recordatorio._id}
+                className="bg-white rounded-2xl shadow-lg border border-blue-100 p-6"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold">
+                      {recordatorio.titulo}
+                    </h3>
 
-              <div className="flex items-start justify-between mb-4">
+                    <p className="text-gray-500 text-sm">
+                      {typeof recordatorio.mascota === 'object' ? recordatorio.mascota.nombre : recordatorio.mascota}
+                    </p>
+                  </div>
 
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">
-                    Vacuna Antirrábica
-                  </h3>
-
-                  <p className="text-gray-500 text-sm">
-                    Luna
-                  </p>
+                  <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                    {recordatorio.tipo}
+                  </span>
                 </div>
 
-                <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
-                  Pendiente
-                </span>
-
-              </div>
-
-              <div className="space-y-2 mb-5">
-
-                <p className="text-gray-700">
-                  20 Dic 2024
+                <p className="text-gray-700 mb-4">
+                  {new Date(recordatorio.fecha).toLocaleDateString()}
                 </p>
-
-              </div>
-
-              <div className="flex gap-3">
-
-                <button className="flex-1 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition">
-                  Editar
-                </button>
-
-                <button className="flex-1 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition">
-                  Completar
-                </button>
-
-              </div>
-
-            </div>
-
-            {/* CARD */}
-            <div className="bg-white rounded-2xl shadow-lg border border-purple-100 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-
-              <div className="flex items-start justify-between mb-4">
-
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">
-                    Control Veterinario
-                  </h3>
-
-                  <p className="text-gray-500 text-sm">
-                    Mateo
-                  </p>
+                <div className="flex gap-3">
+                  <button onClick={() => editarRecordatorio(recordatorio)} className="flex-1 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition">
+                    Editar
+                  </button>
+                  <button
+                    onClick={() =>
+                      completarRecordatorio(recordatorio._id)
+                    }
+                    className="flex-1 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition"
+                  >
+                    Completar
+                  </button>
                 </div>
 
-                <span className="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-semibold">
-                  Pendiente
-                </span>
-
               </div>
-
-              <div className="space-y-2 mb-5">
-
-                <p className="text-gray-700">
-                  22 Dic 2024
-                </p>
-
-              </div>
-
-              <div className="flex gap-3">
-
-                <button className="flex-1 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition">
-                  Editar
-                </button>
-
-                <button className="flex-1 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition">
-                  Completar
-                </button>
-
-              </div>
-
-            </div>
+            ))}
 
           </div>
 
@@ -143,51 +247,127 @@ export default function PetReminders() {
 
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-            <div className="bg-white rounded-2xl shadow-lg border border-emerald-100 p-6 opacity-80 hover:opacity-100 transition-all duration-300">
-
+          {completados.map((recordatorio) => (
+            <div
+              key={recordatorio._id}
+              className="bg-white rounded-2xl shadow-lg border border-emerald-100 p-6"
+            >
               <div className="flex items-start justify-between mb-4">
-
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">
-                    Medicación Pulgas
+                  <h3 className="text-xl font-bold">
+                    {recordatorio.titulo}
                   </h3>
 
                   <p className="text-gray-500 text-sm">
-                    Rocky
+                    {typeof recordatorio.mascota === 'object' && recordatorio.mascota !== null
+                      ? recordatorio.mascota.nombre
+                      : recordatorio.mascota}
                   </p>
                 </div>
 
                 <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
                   Completado
                 </span>
-
               </div>
 
-              <div className="space-y-2 mb-5">
-
-                <p className="text-gray-700">
-                    18 Dic 2024
-                </p>
-
-                <p className="text-gray-700">
-                    09:00 AM
-                </p>
-
-              </div>
-
-              <button className="w-full py-2 rounded-lg bg-gray-100 text-gray-700 font-semibold">
-                Finalizado
-              </button>
-
+              <p className="text-gray-700">
+                {new Date(recordatorio.fecha).toLocaleDateString()}
+              </p>
             </div>
-
-          </div>
+          ))}
 
         </div>
 
       </div>
+      {editarModal && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-4">Editar Recordatorio</h2>
+            <div className="space-y-3">
+              <input type="text" value={titulo} onChange={e => setTitulo(e.target.value)} className="w-full border rounded-xl px-4 py-3" />
+              <input type="text" value={mascota} onChange={e => setMascota(e.target.value)} className="w-full border rounded-xl px-4 py-3" />
+              <input type="date" value={fecha} onChange={e => setFecha(e.target.value)} className="w-full border rounded-xl px-4 py-3" />
+              <select value={tipo} onChange={e => setTipo(e.target.value)} className="w-full border rounded-xl px-4 py-3">
+                <option value="Vacuna">Vacuna</option>
+                <option value="Control">Control</option>
+                <option value="Medicacion">Medicación</option>
+              </select>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setEditarModal(false)} className="px-5 py-2 bg-gray-100 rounded-xl">Cancelar</button>
+              <button onClick={guardarEdicion} className="px-5 py-2 bg-blue-600 text-white rounded-xl">Guardar</button>
+              <button onClick={() => eliminarRecordatorio(editarId!)} className="px-5 py-2 bg-red-500 text-white rounded-xl">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {mostrarModal && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+
+            <h2 className="text-2xl font-bold mb-4">
+              Nuevo Recordatorio
+            </h2>
+
+            <div className="space-y-3">
+
+              <input
+                type="text"
+                placeholder="Título"
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
+                className="w-full border rounded-xl px-4 py-3"
+              />
+
+              <input
+                type="text"
+                placeholder="Mascota"
+                value={mascota}
+                onChange={(e) => setMascota(e.target.value)}
+                className="w-full border rounded-xl px-4 py-3"
+              />
+
+              <input
+                type="date"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+                className="w-full border rounded-xl px-4 py-3"
+              />
+
+              <select
+                value={tipo}
+                onChange={(e) => setTipo(e.target.value)}
+                className="w-full border rounded-xl px-4 py-3"
+              >
+                <option value="Vacuna">Vacuna</option>
+                <option value="Control">Control</option>
+                <option value="Medicacion">Medicación</option>
+              </select>
+
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+
+              <button
+                onClick={() => setMostrarModal(false)}
+                className="px-5 py-2 bg-gray-100 rounded-xl"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={crearRecordatorio}
+                className="px-5 py-2 bg-blue-600 text-white rounded-xl"
+              >
+                Guardar
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

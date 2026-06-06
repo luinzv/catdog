@@ -7,6 +7,7 @@ import mascotasRoutes from "../routes/mascotasRoutes.js";
 import historialRoutes from "../routes/historialRoutes.js";
 import vacunasRoutes from "../routes/vacunasRoutes.js";
 import alergiasRoutes from "../routes/alergiasRoutes.js";
+import recordatorioRoutes from "../routes/recordatorioRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -22,7 +23,7 @@ app.use("/api/historial", historialRoutes);
 app.get("/", (req, res) => {
   res.send("catdog API funcionando");
 });
-
+app.use("/api/recordatorios", recordatorioRoutes);
 app.use("/api/vacunas", vacunasRoutes);
 app.use("/api/alergias", alergiasRoutes);
 
