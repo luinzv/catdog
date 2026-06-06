@@ -1,20 +1,140 @@
 import {
-  Heart,
   Syringe,
   Calendar,
   AlertCircle,
-  Pill,
   Stethoscope,
-  Download,
-  Share2,
   Edit3,
   Plus,
   CheckCircle,
   Clock,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import { useParams } from "react-router-dom";
 
 export default function PetMedicalRecord() {
+
+  const { id } = useParams();
+  const [mascota, setMascota] = useState<any>(null);
+  const [vacunas, setVacunas] = useState<any[]>([]);
+  const [alergias, setAlergias] = useState<any[]>([]);
+  const [showModalAddMedical, setShowModalAddMedical] = useState(false);
+  const [vacunaNombre, setVacunaNombre] = useState("");
+  const [alergiaTipo, setAlergiaTipo] = useState("");
+  const [alergiaGravedad, setAlergiaGravedad] = useState("");
+
+  const agregarVacuna = async () => {
+    if (!vacunaNombre) return;
+    try {
+      const token = localStorage.getItem("token");
+      const bodyData: any = { nombre: vacunaNombre };
+
+      const response = await fetch(`http://localhost:4000/api/vacunas/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(bodyData),
+      });
+
+      const data = await response.json();
+      setVacunas([...vacunas, data]);
+      setVacunaNombre("");
+    } catch (error) {
+      console.error("Error agregando vacuna:", error);
+    }
+  };
+
+  const agregarAlergia = async () => {
+    if (!alergiaTipo || !alergiaGravedad) return;
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:4000/api/alergias/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tipo: alergiaTipo, gravedad: alergiaGravedad }),
+      });
+
+      const data = await response.json();
+      setAlergias([...alergias, data]);
+      setAlergiaTipo("");
+      setAlergiaGravedad("");
+    } catch (error) {
+      console.error("Error agregando alergia:", error);
+    }
+  };
+
+  useEffect(() => {
+    const obtenerMascota = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(
+          `http://localhost:4000/api/mascotas/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        setMascota(data);
+
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    obtenerMascota();
+  }, [id]);
+
+  useEffect(() => {
+    const obtenerDatosMedicos = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const [vacunasRes, alergiasRes] = await Promise.all([
+          fetch(`http://localhost:4000/api/vacunas/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`http://localhost:4000/api/alergias/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        const vacunasData = await vacunasRes.json();
+        const alergiasData = await alergiasRes.json();
+
+        setVacunas(vacunasData);
+        setAlergias(alergiasData);
+      } catch (error) {
+        console.error("Error al obtener datos médicos:", error);
+      }
+    };
+
+    obtenerDatosMedicos();
+  }, [id]);
+
+  const handleAddMedical = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setShowModalAddMedical(false);
+    setVacunaNombre("");
+    setAlergiaTipo("");
+    setAlergiaGravedad("");
+  };
+
+  if (!mascota) {
+    return <div>Cargando...</div>;
+  }
+
   return (
+
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100">
 
       {/* HEADER */}
@@ -65,7 +185,7 @@ export default function PetMedicalRecord() {
 
               <div className="w-full aspect-square bg-linear-to-br from-blue-200 to-cyan-200 rounded-2xl overflow-hidden flex items-center justify-center">
                 <img
-                  src="https://images7.memedroid.com/images/UPLOADED322/634084e6e7085.webp"
+                  src={mascota.imagen}
                   alt="Pet"
                   className="object-cover w-full h-full"
                 />
@@ -81,16 +201,16 @@ export default function PetMedicalRecord() {
 
                   <div>
                     <h2 className="text-3xl font-bold text-gray-900">
-                      Fabricio
+                      {mascota.nombre}
                     </h2>
 
                     <p className="text-lg text-gray-600 mt-1">
-                      Golden Retriever
+                      {mascota.tipo}
                     </p>
                   </div>
 
                   <div className="px-4 py-2 rounded-full font-semibold text-sm border bg-emerald-100 text-emerald-700 border-emerald-300">
-                    Excelente
+                    {mascota.estadoSalud}
                   </div>
 
                 </div>
@@ -103,7 +223,7 @@ export default function PetMedicalRecord() {
                     </p>
 
                     <p className="text-gray-900 text-lg font-bold">
-                      4 años
+                      {mascota.edad} años
                     </p>
                   </div>
 
@@ -113,7 +233,7 @@ export default function PetMedicalRecord() {
                     </p>
 
                     <p className="text-gray-900 text-lg font-bold">
-                      28.5 kg
+                      {mascota.peso} kg
                     </p>
                   </div>
 
@@ -144,7 +264,7 @@ export default function PetMedicalRecord() {
               </div>
 
               <span className="text-2xl font-bold text-gray-900">
-                5
+                {vacunas.length}
               </span>
 
             </div>
@@ -153,9 +273,17 @@ export default function PetMedicalRecord() {
               Vacunas Aplicadas
             </h3>
 
-            <p className="text-gray-600 text-sm">
-              DHPP, Rabia, Bordetella
-            </p>
+            <div className="text-gray-600 text-sm">
+              {vacunas.length === 0 ? (
+                <p>Sin vacunas aplicadas</p>
+              ) : (
+                vacunas.map((vacuna) => (
+                  <div key={vacuna._id }>
+                    <h4 className="font-semibold">{vacuna.nombre}</h4>
+                  </div>
+                ))
+              )}
+            </div>
 
           </div>
 
@@ -199,9 +327,18 @@ export default function PetMedicalRecord() {
               Alergias
             </h3>
 
-            <p className="text-gray-600 text-sm">
-              Sin alergias registradas
-            </p>
+            <div className="text-gray-600 text-sm">
+              {alergias.length === 0 ? (
+                <p>Sin alergias registradas</p>
+              ) : (
+                alergias.map((alergia: any) => (
+                  <div key={alergia._id} className="mb-1">
+                    <p className="font-semibold">{alergia.tipo}</p>
+                    <p className="text-xs text-gray-500">{alergia.gravedad}</p>
+                  </div>
+                ))
+              )}
+            </div>
 
           </div>
 
@@ -251,7 +388,7 @@ export default function PetMedicalRecord() {
         {/* BOTONES */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
 
-          <button className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+          <button onClick={() => setShowModalAddMedical(true)} className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
 
             <Plus className="w-5 h-5" />
             Agregar
@@ -266,7 +403,80 @@ export default function PetMedicalRecord() {
           </button>
 
         </div>
-
+        {showModalAddMedical && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Agregar Historial Médico</h2>
+              <form className="space-y-4" onSubmit={handleAddMedical}>
+                {/* VACUNAS */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Vacunas</h3>
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      placeholder="Nombre vacuna"
+                      value={vacunaNombre}
+                      onChange={(e) => setVacunaNombre(e.target.value)}
+                      className="flex-1 border border-gray-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={agregarVacuna}
+                      className="px-3 py-2 bg-blue-600 text-white rounded-xl"
+                    >
+                      Agregar
+                    </button>
+                  </div>
+                </div>
+                {/* ALERGIAS */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Alergias</h3>
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      placeholder="Tipo alergia"
+                      value={alergiaTipo}
+                      onChange={(e) => setAlergiaTipo(e.target.value)}
+                      className="flex-1 border border-gray-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300"
+                    />
+                    <select
+                      value={alergiaGravedad}
+                      onChange={(e) => setAlergiaGravedad(e.target.value)}
+                      className="border border-gray-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-300"
+                    >
+                      <option value="">Gravedad</option>
+                      <option value="Leve">Leve</option>
+                      <option value="Moderada">Moderada</option>
+                      <option value="Alta">Alta</option>
+                    </select>
+                    <button
+                      type="button"
+                      onClick={agregarAlergia}
+                      className="px-3 py-2 bg-blue-600 text-white rounded-xl"
+                    >
+                      Agregar
+                    </button>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowModalAddMedical(false)}
+                    className="px-5 py-2 rounded-xl bg-gray-100 text-gray-700 font-semibold"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-blue-600 text-white font-semibold"
+                  >
+                    Guardar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

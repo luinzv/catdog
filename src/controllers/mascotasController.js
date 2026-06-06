@@ -26,3 +26,26 @@ export const deleteMascota = async (req, res) => {
   await Mascota.findByIdAndDelete(id);
   res.json({ msg: "Mascota eliminada" });
 };
+
+export const getMascotaById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const mascota = await Mascota.findById(id);
+
+    if (!mascota) {
+      return res.status(404).json({
+        msg: "Mascota no encontrada",
+      });
+    }
+
+    res.json(mascota);
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      msg: "Error al obtener mascota",
+    });
+  }
+};

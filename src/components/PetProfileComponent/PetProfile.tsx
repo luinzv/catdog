@@ -9,6 +9,7 @@ import {
   Eye,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type Mascota = {
   _id: string;
@@ -22,6 +23,7 @@ type Mascota = {
 };
 
 export default function PetsPage() {
+  const navigate = useNavigate();
   const [showModalPetCreate, setShowModalPetCreate] = useState(false);
   const [showModalEditPet, setShowModalEditPet] = useState(false);
 
@@ -483,7 +485,7 @@ export default function PetsPage() {
                     Perfil
                   </button>
 
-                  <button className="flex-1 rounded-xl border border-slate-200 hover:bg-slate-50 px-3 py-2 flex items-center justify-center gap-1 text-sm font-medium transition">
+                  <button onClick={() => navigate(`/ficha-medica/${mascota._id}`)} className="flex-1 rounded-xl border border-slate-200 hover:bg-slate-50 px-3 py-2 flex items-center justify-center gap-1 text-sm font-medium transition">
                     <FileText className="w-4 h-4" />
                     Ficha
                   </button>

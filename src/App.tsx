@@ -14,7 +14,7 @@ function App() {
             <UserProfile />
           </PrivateRoute>
         } />
-         <Route path="/ficha-medica" element={
+         <Route path="/ficha-medica/:id" element={
           <PrivateRoute>
             <PetMedicalRecord />
           </PrivateRoute>
