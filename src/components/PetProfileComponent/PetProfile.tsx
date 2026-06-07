@@ -252,7 +252,7 @@ export default function PetsPage() {
             </div>
             <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-4">
 
-              <nav className="hidden sm:flex gap-8">
+              <nav className="sm:flex gap-8">
                 <a href="#" className="text-gray-600 hover:text-blue-600 transition">
                   Inicio
                 </a>
