@@ -243,25 +243,25 @@ export default function PetsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+              <h1 className="ext-xl sm:text-2xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                 CatDog
               </h1>
-              <h1 className="text-4xl md:text-5xl font-bold text-slate-900">
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
                 Mis Mascotas
               </h1>
             </div>
             <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-4">
 
-              <nav className="sm:flex gap-8">
+              <nav className="flex gap-6 sm:gap-8">
                 <a href="#" className="text-gray-600 hover:text-blue-600 transition">
                   Inicio
                 </a>
 
-                <a href="http://127.0.0.1:5173/mascotas" className="text-gray-600 hover:text-blue-600 transition">
+                <a href="/mascotas" className="text-gray-600 hover:text-blue-600 transition">
                   Mascotas
                 </a>
 
-                <a href="#" className="text-blue-600 font-medium">
+                <a href="/perfil" className="text-blue-600 font-medium">
                   Perfil
                 </a>
               </nav>
