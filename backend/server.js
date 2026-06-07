@@ -22,9 +22,6 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"]
 };
 
-app.options("/*", cors(corsOptions));
-
-
 app.use(cors(corsOptions));
 app.use("/api/auth", authRoutes);
 app.use("/api/mascotas", mascotasRoutes);
