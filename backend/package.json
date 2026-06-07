@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "nodemon src/backend/server.js",
-    "start": "node src/backend/server.js",
+    "dev": "nodemon server.js",
+    "start": "node server.js",
     "devfront": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
