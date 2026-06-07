@@ -696,7 +696,7 @@ export default function PetMedicalRecord() {
                 {/* ALERGIAS */}
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2">Alergias</h3>
-                  <div className="flex gap-2 mb-2">
+                  <div className="flex flex-col sm:flex-row gap-2 mb-2">
                     <input
                       type="text"
                       placeholder="Tipo alergia"
