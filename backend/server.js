@@ -1,13 +1,13 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import connectDB from "../config/bs.js";
-import authRoutes from "../routes/authRoutes.js";
-import mascotasRoutes from "../routes/mascotasRoutes.js";
-import historialRoutes from "../routes/historialRoutes.js";
-import vacunasRoutes from "../routes/vacunasRoutes.js";
-import alergiasRoutes from "../routes/alergiasRoutes.js";
-import recordatorioRoutes from "../routes/recordatorioRoutes.js";
+import connectDB from "./config/bs.js";
+import authRoutes from "./routes/authRoutes.js";
+import mascotasRoutes from "./routes/mascotasRoutes.js";
+import historialRoutes from "./routes/historialRoutes.js";
+import vacunasRoutes from "./routes/vacunasRoutes.js";
+import alergiasRoutes from "./routes/alergiasRoutes.js";
+import recordatorioRoutes from "./routes/recordatorioRoutes.js";
 
 dotenv.config();
 connectDB();

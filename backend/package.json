@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/backend/server.js",
+    "start": "node src/backend/server.js",
     "devfront": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

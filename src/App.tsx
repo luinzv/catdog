@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css'
 import {Dashboard, UserProfile, PetMedicalRecord, PetReminders, UserWelcome, PetProfile, LostPetComponent} from './components/index';
-import PrivateRoute from './routes/PrivateRoute';
+import PrivateRoute from '../backend/routes/PrivateRoute';
 function App() {
 
   return (
