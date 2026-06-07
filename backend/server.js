@@ -1,5 +1,4 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/bs.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -8,15 +7,25 @@ import historialRoutes from "./routes/historialRoutes.js";
 import vacunasRoutes from "./routes/vacunasRoutes.js";
 import alergiasRoutes from "./routes/alergiasRoutes.js";
 import recordatorioRoutes from "./routes/recordatorioRoutes.js";
+import cors from "cors";
+
 
 dotenv.config();
 connectDB();
 
 const app = express();
 
-app.use(cors()); 
 app.use(express.json()); 
+const corsOptions = {
+  origin: "https://catdog-tau-wine.vercel.app", // tu frontend
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
 
+app.options("*", cors(corsOptions));
+
+
+app.use(cors(corsOptions));
 app.use("/api/auth", authRoutes);
 app.use("/api/mascotas", mascotasRoutes);
 app.use("/api/historial", historialRoutes);
