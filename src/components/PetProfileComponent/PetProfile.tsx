@@ -74,7 +74,7 @@ export default function PetsPage() {
         throw new Error(data.msg || "Error al obtener mascotas");
       }
 
-      setMascotas(data);
+      setMascotas(data.mascotas || []);
     } catch (error) {
       console.error("Error obteniendo mascotas:", error);
     }
@@ -123,7 +123,7 @@ export default function PetsPage() {
       console.log("Mascota creada:", data);
 
       // Actualiza la lista inmediatamente
-      setMascotas((prev) => [...prev, data]);
+      setMascotas(prev => [...prev, data.mascota]);
 
       limpiarFormulario();
       setShowModalPetCreate(false);
@@ -176,7 +176,7 @@ export default function PetsPage() {
       // Actualiza la tarjeta inmediatamente
       setMascotas((prev) =>
         prev.map((mascota) =>
-          mascota._id === selectedMascota._id ? data : mascota
+          mascota._id === selectedMascota._id ? data.mascota : mascota
         )
       );
 
@@ -235,7 +235,7 @@ export default function PetsPage() {
   const mascotasPendientes = mascotas.filter(
     (mascota) => mascota.estadoSalud === "Pendiente"
   ).length;
-   console.log("VITE_API_URL:", import.meta.env.VITE_API_URL);
+  console.log("VITE_API_URL:", import.meta.env.VITE_API_URL);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
       {/* HEADER */}
@@ -244,20 +244,20 @@ export default function PetsPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="text-2xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-              CatDog
-            </h1>
+                CatDog
+              </h1>
               <h1 className="text-4xl md:text-5xl font-bold text-slate-900">
                 Mis Mascotas
               </h1>
             </div>
             <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-4">
- 
+
               <nav className="hidden sm:flex gap-8">
                 <a href="#" className="text-gray-600 hover:text-blue-600 transition">
                   Inicio
-               </a>
+                </a>
 
-               <a href="http://127.0.0.1:5173/mascotas" className="text-gray-600 hover:text-blue-600 transition">
+                <a href="http://127.0.0.1:5173/mascotas" className="text-gray-600 hover:text-blue-600 transition">
                   Mascotas
                 </a>
 
@@ -266,18 +266,18 @@ export default function PetsPage() {
                 </a>
               </nav>
               <button
-              onClick={() => {
-                limpiarFormulario();
-                setShowModalPetCreate(true);
-              }}
-              className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-6 py-3 flex items-center gap-2 transition-all"
-            >
-              <Plus className="w-5 h-5" />
-              Agregar Mascota
-            </button>
+                onClick={() => {
+                  limpiarFormulario();
+                  setShowModalPetCreate(true);
+                }}
+                className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-6 py-3 flex items-center gap-2 transition-all"
+              >
+                <Plus className="w-5 h-5" />
+                Agregar Mascota
+              </button>
             </div>
 
-            
+
           </div>
         </div>
       </header>
