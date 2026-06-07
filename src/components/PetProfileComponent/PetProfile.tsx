@@ -235,7 +235,7 @@ export default function PetsPage() {
   const mascotasPendientes = mascotas.filter(
     (mascota) => mascota.estadoSalud === "Pendiente"
   ).length;
-
+   console.log("VITE_API_URL:", import.meta.env.VITE_API_URL);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
       {/* HEADER */}
