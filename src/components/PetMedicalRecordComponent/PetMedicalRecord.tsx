@@ -34,7 +34,7 @@ export default function PetMedicalRecord() {
       const token = localStorage.getItem("token");
       const bodyData: any = { nombre: vacunaNombre };
 
-      const response = await fetch(`http://localhost:4000/api/vacunas/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/vacunas/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -56,7 +56,7 @@ export default function PetMedicalRecord() {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `http://localhost:4000/api/recordatorios/mascota/${id}`,
+          `${import.meta.env.VITE_API_URL}/api/recordatorios/mascota/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -80,7 +80,7 @@ export default function PetMedicalRecord() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:4000/api/mascotas/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/mascotas/${id}`,
         {
           method: "PUT",
           headers: {
@@ -108,7 +108,7 @@ export default function PetMedicalRecord() {
     if (!alergiaTipo || !alergiaGravedad) return;
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:4000/api/alergias/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/alergias/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -132,7 +132,7 @@ export default function PetMedicalRecord() {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `http://localhost:4000/api/mascotas/${id}`,
+          `${import.meta.env.VITE_API_URL}/api/mascotas/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -158,10 +158,10 @@ export default function PetMedicalRecord() {
         const token = localStorage.getItem("token");
 
         const [vacunasRes, alergiasRes] = await Promise.all([
-          fetch(`http://localhost:4000/api/vacunas/${id}`, {
+          fetch(`${import.meta.env.VITE_API_URL}/api/vacunas/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch(`http://localhost:4000/api/alergias/${id}`, {
+          fetch(`${import.meta.env.VITE_API_URL}/api/alergias/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -533,7 +533,7 @@ export default function PetMedicalRecord() {
                           onClick={async () => {
                             try {
                               const token = localStorage.getItem("token");
-                              await fetch(`http://localhost:4000/api/vacunas/${v._id}`, {
+                              await fetch(`${import.meta.env.VITE_API_URL}/api/vacunas/${v._id}`, {
                                 method: "DELETE",
                                 headers: { Authorization: `Bearer ${token}` },
                               });
@@ -564,7 +564,7 @@ export default function PetMedicalRecord() {
                           onClick={async () => {
                             try {
                               const token = localStorage.getItem("token");
-                              await fetch(`http://localhost:4000/api/alergias/${a._id}`, {
+                              await fetch(`${import.meta.env.VITE_API_URL}/api/alergias/${a._id}`, {
                                 method: "DELETE",
                                 headers: { Authorization: `Bearer ${token}` },
                               });
