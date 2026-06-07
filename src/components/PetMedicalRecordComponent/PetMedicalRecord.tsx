@@ -97,7 +97,7 @@ export default function PetMedicalRecord() {
 
       const data = await response.json();
 
-      setMascota(data);
+      setMascota(data.mascota);
       setShowModalEditPet(false);
 
     } catch (error) {
@@ -142,7 +142,7 @@ export default function PetMedicalRecord() {
 
         const data = await response.json();
 
-        setMascota(data);
+        setMascota(data.mascota);
 
       } catch (error) {
         console.error(error);
