@@ -20,7 +20,7 @@ type Mascota = {
   nombre: string;
   tipo: string;
   edad: number;
-  salud: string;
+  estadoSalud: string;
 };
 
 export default function UserProfile() {
@@ -54,7 +54,7 @@ export default function UserProfile() {
       const data = await res.json();
       console.log("MASCOTAS API:", data);
       // ensure we only set an array
-      setMascotas(Array.isArray(data) ? data : []);
+      setMascotas(Array.isArray(data.mascotas) ? data.mascotas : []);
     } catch (err) {
       console.error(err);
     }
@@ -308,14 +308,14 @@ export default function UserProfile() {
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">Salud</span>
                       <span
-                        className={`font-semibold px-3 py-1 rounded-full ${pet.salud === "Excelente"
+                        className={`font-semibold px-3 py-1 rounded-full ${pet.estadoSalud === "Excelente"
                           ? "bg-green-100 text-green-700"
-                          : pet.salud === "Buena"
+                          : pet.estadoSalud === "Buena"
                             ? "bg-yellow-100 text-yellow-700"
                             : "bg-red-100 text-red-700"
                           }`}
                       >
-                        {pet.salud}
+                        {pet.estadoSalud}
                       </span>
                     </div>
                   </div>
