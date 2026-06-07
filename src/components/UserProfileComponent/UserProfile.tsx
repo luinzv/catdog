@@ -83,7 +83,7 @@ export default function UserProfile() {
                 Inicio
               </a>
 
-              <a href="http://127.0.0.1:5173/mascotas" className="text-gray-600 hover:text-blue-600 transition">
+              <a href="/mascotas" className="text-gray-600 hover:text-blue-600 transition">
                 Mascotas
               </a>
 
