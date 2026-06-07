@@ -151,21 +151,44 @@ export default function PetReminders() {
   );
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100">
+      {/* HEADER */}
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-slate-200/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+              CatDog
+            </h1>
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900">
+                Recordatorios
+              </h1>
+            </div>
+            <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-4">
+ 
+              <nav className="hidden sm:flex gap-8">
+                <a href="#" className="text-gray-600 hover:text-blue-600 transition">
+                  Inicio
+               </a>
+
+               <a href="http://127.0.0.1:5173/mascotas" className="text-gray-600 hover:text-blue-600 transition">
+                  Mascotas
+                </a>
+
+                <a href="#" className="text-blue-600 font-medium">
+                  Perfil
+                </a>
+              </nav>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </header>
 
       <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
 
-        {/* HEADER */}
-        <div className="mb-8">
-
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-            Recordatorios
-          </h1>
-
-          <p className="text-gray-600 text-lg">
-            Organiza vacunas, controles y cuidados de tus mascotas
-          </p>
-
-        </div>
+        
 
         {/* BOTÓN CREAR */}
         <div className="flex justify-start mb-8">
