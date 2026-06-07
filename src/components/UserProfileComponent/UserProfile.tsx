@@ -52,6 +52,7 @@ export default function UserProfile() {
       }
 
       const data = await res.json();
+      console.log("MASCOTAS API:", data);
       // ensure we only set an array
       setMascotas(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -66,6 +67,7 @@ export default function UserProfile() {
 
     navigate("/");
   };
+  
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100">
 
