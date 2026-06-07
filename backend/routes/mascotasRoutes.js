@@ -1,6 +1,6 @@
 import express from "express";
 import { getMascotas, createMascota, updateMascota, deleteMascota, getMascotaById } from "../controllers/mascotasController.js";
-import authMiddleware from "../../middleware/authMiddleware.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
