@@ -7,8 +7,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/bienvenida" element={<UserWelcome />} />
+        <Route path="/login" element={<Dashboard />} />
+        <Route path="/" element={<UserWelcome />} />
         <Route path="/perfil" element={
           <PrivateRoute>
             <UserProfile />

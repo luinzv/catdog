@@ -61,12 +61,12 @@ export default function WelcomeScreen() {
           {/* BOTONES */}
           <div className="space-y-3">
 
-            <button onClick={() => navigate("/?", { state: { formType: "register" } })} className="w-full bg-linear-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+            <button onClick={() => navigate("/login", { state: { formType: "register" } })} className="w-full bg-linear-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
               Unirse
             </button>
             <div className="user-profile">
     </div>
-            <button onClick={() => navigate("/?")} className="w-full border-2 border-blue-300 text-blue-600 hover:bg-blue-50 font-semibold py-4 px-6 rounded-xl transition-all duration-300">
+            <button onClick={() => navigate("/login")} className="w-full border-2 border-blue-300 text-blue-600 hover:bg-blue-50 font-semibold py-4 px-6 rounded-xl transition-all duration-300">
               Iniciar Sesión
             </button>
 
