@@ -62,7 +62,7 @@ export default function PetsPage() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:4000/api/mascotas", {
+      const response = await fetch("${import.meta.env.VITE_API_URL}/api/mascotas", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -105,7 +105,7 @@ export default function PetsPage() {
     };
 
     try {
-      const response = await fetch("http://localhost:4000/api/mascotas", {
+      const response = await fetch("${import.meta.env.VITE_API_URL}/api/mascotas", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -149,7 +149,7 @@ export default function PetsPage() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:4000/api/mascotas/${selectedMascota._id}`,
+        `${import.meta.env.VITE_API_URL}/api/mascotas/${selectedMascota._id}`,
         {
           method: "PUT",
           headers: {
@@ -197,7 +197,7 @@ export default function PetsPage() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:4000/api/mascotas/${selectedMascota._id}`,
+        `${import.meta.env.VITE_API_URL}/api/mascotas/${selectedMascota._id}`,
         {
           method: "DELETE",
           headers: {

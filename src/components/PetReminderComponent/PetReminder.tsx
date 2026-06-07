@@ -21,7 +21,7 @@ export default function PetReminders() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        "http://localhost:4000/api/recordatorios",
+        "${import.meta.env.VITE_API_URL}/api/recordatorios",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -41,7 +41,7 @@ export default function PetReminders() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        "http://localhost:4000/api/recordatorios",
+        "${import.meta.env.VITE_API_URL}/api/recordatorios",
         {
           method: "POST",
           headers: {
@@ -77,7 +77,7 @@ export default function PetReminders() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:4000/api/recordatorios/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/recordatorios/${id}`,
         {
           method: "PUT",
           headers: {
@@ -114,7 +114,7 @@ export default function PetReminders() {
     if (!editarId) return;
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:4000/api/recordatorios/${editarId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/recordatorios/${editarId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ titulo, mascota, fecha, tipo }),
@@ -131,7 +131,7 @@ export default function PetReminders() {
   const eliminarRecordatorio = async (id: string) => {
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:4000/api/recordatorios/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/recordatorios/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
