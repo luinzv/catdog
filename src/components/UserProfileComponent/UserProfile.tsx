@@ -80,7 +80,7 @@ export default function UserProfile() {
               CatDog
             </h1>
 
-            <nav className="sm:flex gap-8">
+            <nav className="flex gap-6 sm:gap-10 gap-8">
               <a href="#" className="text-gray-600 hover:text-blue-600 transition">
                 Inicio
               </a>
@@ -89,7 +89,7 @@ export default function UserProfile() {
                 Mascotas
               </a>
 
-              <a href="#" className="text-blue-600 font-medium" >
+              <a href="#" className="hidden sm:block text-blue-600 font-medium" >
                 Perfil
               </a>
             </nav>
