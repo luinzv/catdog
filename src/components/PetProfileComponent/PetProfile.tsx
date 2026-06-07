@@ -62,7 +62,7 @@ export default function PetsPage() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("${import.meta.env.VITE_API_URL}/api/mascotas", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mascotas`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -105,7 +105,7 @@ export default function PetsPage() {
     };
 
     try {
-      const response = await fetch("${import.meta.env.VITE_API_URL}/api/mascotas", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mascotas`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

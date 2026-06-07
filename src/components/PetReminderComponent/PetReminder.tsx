@@ -21,7 +21,7 @@ export default function PetReminders() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        "${import.meta.env.VITE_API_URL}/api/recordatorios",
+        `${import.meta.env.VITE_API_URL}/api/recordatorios`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -41,7 +41,7 @@ export default function PetReminders() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        "${import.meta.env.VITE_API_URL}/api/recordatorios",
+        `${import.meta.env.VITE_API_URL}/api/recordatorios`,
         {
           method: "POST",
           headers: {
