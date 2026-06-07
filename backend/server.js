@@ -17,12 +17,12 @@ const app = express();
 
 app.use(express.json()); 
 const corsOptions = {
-  origin: "https://catdog-tau-wine.vercel.app", // tu frontend
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: true,
+  credentials: false
 };
 
 app.use(cors(corsOptions));
+
 app.use("/api/auth", authRoutes);
 app.use("/api/mascotas", mascotasRoutes);
 app.use("/api/historial", historialRoutes);
