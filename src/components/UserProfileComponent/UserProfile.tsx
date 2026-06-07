@@ -9,18 +9,63 @@ import {
   Edit3,
   Cat,
   Cake,
+  Eye,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+type Mascota = {
+  _id: string;
+  imagen: string;
+  nombre: string;
+  tipo: string;
+  edad: number;
+  salud: string;
+};
+
 export default function UserProfile() {
+  const [mascotas, setMascotas] = useState<Mascota[]>([]);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    obtenerMascotas();
+  }, []);
+
+  const obtenerMascotas = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:4000/api/mascotas", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        // handle unauthorized or other errors
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/");
+        }
+        setMascotas([]);
+        return;
+      }
+
+      const data = await res.json();
+      // ensure we only set an array
+      setMascotas(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   const handleLogout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-  navigate("/");
-};
+    navigate("/");
+  };
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100">
 
@@ -231,59 +276,55 @@ export default function UserProfile() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-            {/* CARD */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-
-              <div className="relative h-40 overflow-hidden bg-linear-to-br from-blue-100 to-purple-100">
-
-                <img
-                  src="https://images.unsplash.com/photo-1574158622682-e40e69881006?w=300&h=300&fit=crop"
-                  alt="pet"
-                  className="w-full h-full object-cover"
-                />
-
-                <div className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-lg">
-                  <Cat className="text-gray-700" size={20} />
-                </div>
-              </div>
-
-              <div className="p-5">
-
-                <h3 className="text-lg font-bold text-gray-900 mb-1">
-                  Luna
-                </h3>
-
-                <p className="text-sm text-gray-600 mb-4 font-medium">
-                  Gato
-                </p>
-
-                <div className="space-y-3">
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Edad</span>
-
-                    <span className="font-semibold text-gray-900">
-                      3 años
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Salud</span>
-
-                    <span className="font-semibold px-3 py-1 rounded-full bg-green-100 text-green-700">
-                      Excelente
-                    </span>
+            {mascotas.map((pet) => (
+              <div
+                key={pet._id}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-transform duration-300 hover:scale-105"
+              >
+                {/* Imagen de la mascota */}
+                <div className="relative h-44 overflow-hidden rounded-t-2xl bg-gradient-to-br from-blue-100 to-purple-100">
+                  <img
+                    src={pet.imagen || "https://via.placeholder.com/150"} // usa "imagen" en lugar de "foto"
+                    alt={pet.nombre}
+                    className="object-cover w-full h-full"
+                  />
+                  <div className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-lg">
+                    <Cat className="text-gray-700" size={20} />
                   </div>
                 </div>
 
-                <button className="w-full mt-4 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2 rounded-lg transition-all shadow-md">
-                  Ver detalles
-                </button>
+                {/* Contenido */}
+                <div className="p-5">
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">{pet.nombre}</h3>
+                  <p className="text-sm text-gray-600 mb-4 font-medium">{pet.tipo}</p>
 
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Edad</span>
+                      <span className="font-semibold text-gray-900">{pet.edad} años</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Salud</span>
+                      <span
+                        className={`font-semibold px-3 py-1 rounded-full ${pet.salud === "Excelente"
+                          ? "bg-green-100 text-green-700"
+                          : pet.salud === "Buena"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-red-100 text-red-700"
+                          }`}
+                      >
+                        {pet.salud}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button className="w-full mt-4 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-semibold py-2 rounded-lg shadow-md transition-all flex items-center justify-center gap-2">
+                    <Eye size={16} />
+                    Ver detalles
+                  </button>
+                </div>
               </div>
-            </div>
-
+            ))}
           </div>
         </div>
 

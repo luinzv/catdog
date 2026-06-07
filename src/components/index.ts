@@ -4,3 +4,4 @@ export { default as PetMedicalRecord } from './PetMedicalRecordComponent/PetMedi
 export { default as PetReminders } from './PetReminderComponent/PetReminder';
 export { default as UserWelcome } from './UserWelcomeComponent/UserWelcome';
 export { default as PetProfile } from './PetProfileComponent/PetProfile';
+export { default as LostPetComponent } from './LostPetComponent/LostPet';
