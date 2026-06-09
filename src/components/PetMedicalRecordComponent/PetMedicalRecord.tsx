@@ -214,7 +214,7 @@ export default function PetMedicalRecord() {
                 CatDog
               </h1>
               <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
-                Ficha Medica de {mascota.nombre}
+                Ficha Medica
               </h1>
             </div>
             <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-4">
