@@ -206,55 +206,30 @@ export default function PetMedicalRecord() {
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100">
 
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-blue-100 shadow-sm">
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-
-            <div className="flex items-center gap-2">
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-slate-200/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
               <h1 className="text-xl sm:text-2xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                 CatDog
+                CatDog
+              </h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
+                Ficha Medica de {mascota.nombre}
               </h1>
             </div>
-            
             <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-4">
-              
- 
-              <nav className="flex flex-row gap-6 sm:gap-10">
-                <a href="#" className="text-gray-600 hover:text-blue-600 transition">
-                  Inicio
-                </a>
-
-                <a href="/mascotas" className="text-gray-600 hover:text-blue-600 transition">
-                  Mascotas
-                </a>
-
-                <a href="/perfil" className="text-blue-600 font-medium">
-                  Perfil
-                </a>
+              <nav className="flex gap-6 sm:gap-8">
+                <a href="#" className="text-gray-600 hover:text-blue-600 transition">Inicio</a>
+                <a href="/mascotas" className="text-gray-600 hover:text-blue-600 transition">Mascotas</a>
+                <a href="/recordatorios" className="text-gray-600 hover:text-blue-600 transition">Recordatorios</a>
+                <a href="/perfil" className="text-gray-600 font-medium">Perfil</a>
               </nav>
-              
             </div>
-
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        {/* TITULO */}
-        <div className="mb-8">
-
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-2">
-            Ficha Médica
-          </h1>
-
-          <p className="text-gray-600 hidden sm:block">
-            Información completa de salud y registro médico
-          </p>
-
-        </div>
 
         {/* TARJETA PRINCIPAL */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8 border border-blue-100 hover:shadow-xl transition-shadow duration-300">
