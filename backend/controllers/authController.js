@@ -78,3 +78,28 @@ export const login = async (req, res) => {
     return res.status(500).json({ msg: "Error en el servidor" });
   }
 };
+
+export const actualizarPerfil = async (req, res) => {
+  try {
+    const { nombre, email, password, imagen } = req.body;
+
+    const usuario = await Usuario.findById(req.user.id).select("+password"); // <-- req.user
+    if (!usuario) return res.status(404).json({ msg: "Usuario no encontrado" });
+
+    if (nombre) usuario.nombre = nombre;
+    if (email) usuario.email = email;
+    if (imagen) usuario.imagen = imagen;
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      usuario.password = await bcrypt.hash(password, salt);
+    }
+
+    await usuario.save();
+
+    const { password: _, ...usuarioActualizado } = usuario.toObject();
+    res.json({ usuario: usuarioActualizado });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error al actualizar perfil" });
+  }
+};

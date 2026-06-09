@@ -14,6 +14,10 @@ const usuarioSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
+    imagen: {
+      type: String,
+      default: "https://i.pinimg.com/736x/08/0a/fb/080afbcc2ed1022bbdc59446190164d8.jpg",
+    },
     password: {
       type: String,
       required: true,

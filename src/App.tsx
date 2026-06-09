@@ -19,7 +19,7 @@ function App() {
             <PetMedicalRecord />
           </PrivateRoute>
         } />
-         <Route path="/recordatorios/:id" element={
+         <Route path="/recordatorios/" element={
           <PrivateRoute>
             <PetReminders />
           </PrivateRoute>
