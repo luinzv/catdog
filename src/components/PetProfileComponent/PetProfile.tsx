@@ -479,7 +479,7 @@ export default function PetsPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mb-6 pb-6 border-b border-slate-100">
+                <div className="grid grid-cols-2 gap-3 mb-3 pb-6 border-b border-slate-100">
                   <div className="bg-blue-50 rounded-2xl p-3">
                     <p className="text-xs text-slate-600 font-medium">
                       Edad
@@ -502,7 +502,7 @@ export default function PetsPage() {
                 </div>
                 {mascota.descripcion && (
                   <div className="mb-4">
-                    <p className="text-xs text-slate-600 font-medium mb-1">Descripción</p>
+                    <p className="text-xs text-slate-600 font-medium mb-1">Descripción:</p>
                     <p className="text-sm text-slate-700">{mascota.descripcion}</p>
                   </div>
                 )}
