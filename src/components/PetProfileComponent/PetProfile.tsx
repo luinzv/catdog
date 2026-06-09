@@ -500,7 +500,12 @@ export default function PetsPage() {
                     </p>
                   </div>
                 </div>
-
+                {mascota.descripcion && (
+                  <div className="mb-4">
+                    <p className="text-xs text-slate-600 font-medium mb-1">Descripción</p>
+                    <p className="text-sm text-slate-700">{mascota.descripcion}</p>
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <button className="flex-1 rounded-xl border border-slate-200 hover:bg-slate-50 px-3 py-2 flex items-center justify-center gap-1 text-sm font-medium transition">
                     <Eye className="w-4 h-4" />
