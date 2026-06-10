@@ -203,11 +203,12 @@ export default function PetReminders() {
               </h1>
             </div>
             <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-4">
-              <nav className="flex gap-6 sm:gap-8 mr-5">
+              <nav className="flex gap-6 sm:gap-8">
                 <a href="#" className="text-gray-600 hover:text-blue-600 transition">Inicio</a>
                 <a href="/mascotas" className="text-gray-600 hover:text-blue-600 transition">Mascotas</a>
-                <a href="/recordatorios" className="text-blue-600 hover:text-blue-600 font-medium">Recordatorios</a>
-                <a href="/perfil" className="text-gray-600 hover:text-blue-600 font-medium">Perfil</a>
+                <a href="/recordatorios" className="text-blue-600 hover:text-blue-600 transition">Recordatorios</a>
+                <a href="/alertas" className="text-gray-600 font-medium hover:text-blue-600 transition">Alertas</a>
+                <a href="/perfil" className="text-gray-600 font-medium hover:text-blue-600 transition">Perfil</a>
               </nav>
             </div>
           </div>

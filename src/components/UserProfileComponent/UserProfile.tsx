@@ -175,6 +175,7 @@ export default function UserProfile() {
                 <a href="#" className="text-gray-600 hover:text-blue-600 transition">Inicio</a>
                 <a href="/mascotas" className="text-gray-600 hover:text-blue-600 transition">Mascotas</a>
                 <a href="/recordatorios" className="text-gray-600 hover:text-blue-600 transition">Recordatorios</a>
+                <a href="/alertas" className="text-gray-600 font-medium hover:text-blue-600 transition">Alertas</a>
                 <a href="/perfil" className="text-blue-600 font-medium">Perfil</a>
               </nav>
             </div>

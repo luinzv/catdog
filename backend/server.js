@@ -7,6 +7,7 @@ import historialRoutes from "./routes/historialRoutes.js";
 import vacunasRoutes from "./routes/vacunasRoutes.js";
 import alergiasRoutes from "./routes/alergiasRoutes.js";
 import recordatorioRoutes from "./routes/recordatorioRoutes.js";
+import mascotaPerdidaRoutes from "./routes/mascotaPerdidaRoutes.js";
 import cors from "cors";
 
 
@@ -36,3 +37,5 @@ app.use("/api/alergias", alergiasRoutes);
 app.listen(process.env.PORT, () =>
   console.log("Servidor en puerto", process.env.PORT)
 );
+
+app.use("/api/mascotas-perdidas", mascotaPerdidaRoutes);

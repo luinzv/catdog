@@ -222,7 +222,8 @@ export default function PetMedicalRecord() {
                 <a href="#" className="text-gray-600 hover:text-blue-600 transition">Inicio</a>
                 <a href="/mascotas" className="text-gray-600 hover:text-blue-600 transition">Mascotas</a>
                 <a href="/recordatorios" className="text-gray-600 hover:text-blue-600 transition">Recordatorios</a>
-                <a href="/perfil" className="text-gray-600 font-medium">Perfil</a>
+                <a href="/alertas" className="text-gray-600 font-medium hover:text-blue-600 transition">Alertas</a>
+                <a href="/perfil" className="text-gray-600 font-medium hover:text-blue-600 transition">Perfil</a>
               </nav>
             </div>
           </div>
