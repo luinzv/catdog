@@ -5,7 +5,6 @@ import {
   Clock,
   Syringe,
   Stethoscope,
-  X,
   ChevronRight,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -32,7 +31,7 @@ type Alerta = {
 export default function AlertsPage() {
   const navigate = useNavigate();
   const [alertas, setAlertas] = useState<Alerta[]>([]);
-  const [descartadas, setDescartadas] = useState<string[]>([]);
+  const [descartadas] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<"todas" | "critica" | "proxima">("todas");
 
