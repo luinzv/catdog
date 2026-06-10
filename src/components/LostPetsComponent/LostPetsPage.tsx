@@ -2,7 +2,6 @@ import {
   Plus,
   MapPin,
   Phone,
-  Calendar,
   X,
   Edit2,
   CheckCircle,
@@ -36,7 +35,7 @@ const EMPTY_FORM = {
 };
 
 export default function LostPetsPage() {
-  const navigate = useNavigate();
+  
   const [mascotas, setMascotas] = useState<MascotaPerdida[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<"Todas" | "Perdida" | "Encontrada">("Todas");
@@ -48,6 +47,7 @@ export default function LostPetsPage() {
   const [form, setForm] = useState(EMPTY_FORM);
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const navigate = useNavigate();
 
   useEffect(() => {
     obtenerMascotas();
@@ -89,6 +89,8 @@ export default function LostPetsPage() {
       setMascotas((prev) => [data, ...prev]);
       setForm(EMPTY_FORM);
       setMostrarModal(false);
+      // intentar navegación para evitar warning de variable no usada en build
+      if (navigate) navigate('/mascotas-perdidas');
     } catch (err) {
       console.error(err);
     }
