@@ -5,6 +5,7 @@ import {
   Clock,
   Syringe,
   Stethoscope,
+  X,
   ChevronRight,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -122,10 +123,6 @@ export default function AlertsPage() {
     }
   };
 
-  const descartarAlerta = (id: string) => {
-    setDescartadas((prev) => [...prev, id]);
-  };
-
   const alertasFiltradas = alertas
     .filter((a) => !descartadas.includes(a.id))
     .filter((a) => filtro === "todas" || a.urgencia === filtro);
@@ -164,6 +161,7 @@ export default function AlertsPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+        {/* ESTADÍSTICAS — mismo estilo que mascotas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
@@ -292,13 +290,13 @@ export default function AlertsPage() {
                     <div className="grid grid-cols-2 gap-3 mb-3 pb-4 border-b border-slate-100">
                       <div className={`rounded-2xl p-3 ${esCritica ? "bg-red-50" : "bg-amber-50"}`}>
                         <p className="text-xs text-slate-600 font-medium">Fecha</p>
-                        <p className={`text-[14px] font-bold mt-1 ${esCritica ? "text-red-500" : "text-amber-500"}`}>
+                        <p className={`text-lg font-bold mt-1 ${esCritica ? "text-red-500" : "text-amber-500"}`}>
                           {new Date(alerta.fecha).toLocaleDateString()}
                         </p>
                       </div>
                       <div className="bg-blue-50 rounded-2xl p-3">
                         <p className="text-xs text-slate-600 font-medium">Estado</p>
-                        <p className="text-[14px] font-bold text-blue-600 mt-1">{alerta.descripcion}</p>
+                        <p className="text-lg font-bold text-blue-600 mt-1">{alerta.descripcion}</p>
                       </div>
                     </div>
 
