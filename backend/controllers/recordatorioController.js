@@ -2,9 +2,10 @@ import Recordatorio from "../models/Recordatorio.js";
 
 export const obtenerRecordatorios = async (req, res) => {
   try {
+    console.log("Usuario buscando recordatorios:", req.user.id);
     const recordatorios = await Recordatorio.find({ usuario: req.user.id })
       .populate("mascota", "nombre");
-
+    console.log("Recordatorios encontrados:", recordatorios.length);
     res.json(recordatorios);
   } catch (error) {
     console.error(error);
