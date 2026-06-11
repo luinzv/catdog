@@ -59,6 +59,7 @@ export default function PetReminders() {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const data = await response.json();
+    console.log("RECORDATORIOS:", data); // <-- agrega esto
     setRecordatorios(Array.isArray(data) ? data : []);
   } catch (error) {
     console.error(error);
