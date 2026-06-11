@@ -15,11 +15,16 @@ export const obtenerRecordatorios = async (req, res) => {
 
 export const crearRecordatorio = async (req, res) => {
   try {
+    console.log("req.user completo:", JSON.stringify(req.user));
+    console.log("req.body completo:", JSON.stringify(req.body));
+    
     const nuevoRecordatorio = new Recordatorio({
       ...req.body,
-      usuario: req.user.id, 
+      usuario: req.user.id,
     });
-    await nuevoRecordatorio.save();
+    
+    const guardado = await nuevoRecordatorio.save();
+    console.log("Guardado en DB:", JSON.stringify(guardado));
 
     const recordatorio = await Recordatorio.findById(
       nuevoRecordatorio._id
@@ -27,8 +32,9 @@ export const crearRecordatorio = async (req, res) => {
 
     res.status(201).json(recordatorio);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Error al crear el recordatorio" });
+    console.error("ERROR COMPLETO:", error.message);
+    console.error("STACK:", error.stack);
+    res.status(500).json({ msg: error.message }); // <-- devuelve el error real
   }
 };
 
