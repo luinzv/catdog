@@ -52,19 +52,19 @@ export default function PetReminders() {
   };
 
   const obtenerRecordatorios = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/recordatorios`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    const data = await response.json();
-    console.log("RECORDATORIOS:", data); // <-- agrega esto
-    setRecordatorios(Array.isArray(data) ? data : []);
-  } catch (error) {
-    console.error(error);
-  }
-};
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/recordatorios`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await response.json();
+      console.log("RECORDATORIOS:", data);
+      setRecordatorios(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const abrirModalConMascota = (mascota: Mascota) => {
     setMascotaSeleccionada(mascota);
@@ -95,7 +95,8 @@ export default function PetReminders() {
         }
       );
       const data = await response.json();
-      setRecordatorios([...recordatorios, data]);
+      console.log("RECORDATORIO CREADO:", data);
+      setRecordatorios((prev) => [...prev, data]);
       setTitulo("");
       setFecha("");
       setTipo("Vacuna");
@@ -217,7 +218,13 @@ export default function PetReminders() {
       </header>
 
       <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
-              <div className="mb-10">
+
+        {/* MASCOTAS */}
+        <div className="mb-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+            Agregar recordatorio a una mascota
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mascotas.map((mascota) => (
               <div
@@ -226,15 +233,11 @@ export default function PetReminders() {
               >
                 <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
                   <img
-                    src={
-                      mascota.imagen ||
-                      "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=500&h=500&fit=crop"
-                    }
+                    src={mascota.imagen || "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=500&h=500&fit=crop"}
                     alt={mascota.nombre}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>
-
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <div>
@@ -242,7 +245,6 @@ export default function PetReminders() {
                       <p className="text-sm text-slate-500 mt-1">{mascota.tipo}</p>
                     </div>
                   </div>
-
                   <div className="grid grid-cols-2 gap-3 mb-6 pb-6 border-b border-slate-100">
                     <div className="bg-blue-50 rounded-2xl p-3">
                       <p className="text-xs text-slate-600 font-medium">Edad</p>
@@ -253,7 +255,6 @@ export default function PetReminders() {
                       <p className="text-lg font-bold text-cyan-600 mt-1">{mascota.peso} kg</p>
                     </div>
                   </div>
-
                   <button
                     onClick={() => abrirModalConMascota(mascota)}
                     className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-2.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
@@ -266,12 +267,13 @@ export default function PetReminders() {
             ))}
           </div>
         </div>
+
         {/* RECORDATORIOS PENDIENTES */}
         <div className="mb-10">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
             Pendientes
           </h2>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {pendientes.map((recordatorio) => (
               <div
@@ -291,11 +293,9 @@ export default function PetReminders() {
                     {recordatorio.tipo}
                   </span>
                 </div>
-
                 <p className="text-gray-700 mb-4">
                   {new Date(recordatorio.fecha).toLocaleDateString()}
                 </p>
-
                 <div className="flex gap-3">
                   <button
                     onClick={() => editarRecordatorio(recordatorio)}
@@ -318,9 +318,9 @@ export default function PetReminders() {
         {/* RECORDATORIOS COMPLETADOS */}
         <div className="mb-10">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
             Completados
           </h2>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {completados.map((recordatorio) => (
               <div
@@ -347,9 +347,6 @@ export default function PetReminders() {
             ))}
           </div>
         </div>
-
-        {/* MASCOTAS */}
-
       </div>
 
       {/* MODAL EDITAR */}
@@ -363,24 +360,14 @@ export default function PetReminders() {
               </p>
             )}
             <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Título"
-                value={titulo}
+              <input type="text" placeholder="Título" value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
-                className="w-full border rounded-xl px-4 py-3"
-              />
-              <input
-                type="date"
-                value={fecha}
+                className="w-full border rounded-xl px-4 py-3" />
+              <input type="date" value={fecha}
                 onChange={(e) => setFecha(e.target.value)}
-                className="w-full border rounded-xl px-4 py-3"
-              />
-              <select
-                value={tipo}
-                onChange={(e) => setTipo(e.target.value)}
-                className="w-full border rounded-xl px-4 py-3"
-              >
+                className="w-full border rounded-xl px-4 py-3" />
+              <select value={tipo} onChange={(e) => setTipo(e.target.value)}
+                className="w-full border rounded-xl px-4 py-3">
                 <option value="Vacuna">Vacuna</option>
                 <option value="Control">Control</option>
                 <option value="Medicacion">Medicación</option>
@@ -404,24 +391,14 @@ export default function PetReminders() {
               Mascota: <span className="font-semibold text-slate-700">{mascotaSeleccionada.nombre}</span>
             </p>
             <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Título"
-                value={titulo}
+              <input type="text" placeholder="Título" value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
-                className="w-full border rounded-xl px-4 py-3"
-              />
-              <input
-                type="date"
-                value={fecha}
+                className="w-full border rounded-xl px-4 py-3" />
+              <input type="date" value={fecha}
                 onChange={(e) => setFecha(e.target.value)}
-                className="w-full border rounded-xl px-4 py-3"
-              />
-              <select
-                value={tipo}
-                onChange={(e) => setTipo(e.target.value)}
-                className="w-full border rounded-xl px-4 py-3"
-              >
+                className="w-full border rounded-xl px-4 py-3" />
+              <select value={tipo} onChange={(e) => setTipo(e.target.value)}
+                className="w-full border rounded-xl px-4 py-3">
                 <option value="Vacuna">Vacuna</option>
                 <option value="Control">Control</option>
                 <option value="Medicacion">Medicación</option>
