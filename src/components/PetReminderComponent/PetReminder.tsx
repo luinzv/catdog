@@ -271,7 +271,6 @@ export default function PetReminders() {
         {/* RECORDATORIOS PENDIENTES */}
         <div className="mb-10">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
             Pendientes
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -318,7 +317,6 @@ export default function PetReminders() {
         {/* RECORDATORIOS COMPLETADOS */}
         <div className="mb-10">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
             Completados
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
