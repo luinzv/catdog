@@ -52,18 +52,18 @@ export default function PetReminders() {
   };
 
   const obtenerRecordatorios = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/recordatorios`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      const data = await response.json();
-      setRecordatorios(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/recordatorios`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    const data = await response.json();
+    setRecordatorios(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const abrirModalConMascota = (mascota: Mascota) => {
     setMascotaSeleccionada(mascota);
