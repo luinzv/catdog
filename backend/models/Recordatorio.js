@@ -7,6 +7,11 @@ const recordatorioSchema = new mongoose.Schema(
       ref: "Mascota",
       required: true,
     },
+    usuario: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
+      required: true,
+    },
 
     titulo: {
       type: String,
