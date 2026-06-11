@@ -15,15 +15,16 @@ export const obtenerRecordatorios = async (req, res) => {
 
 export const crearRecordatorio = async (req, res) => {
   try {
-    console.log("req.user completo:", JSON.stringify(req.user));
-    console.log("req.body completo:", JSON.stringify(req.body));
+    const { titulo, mascota, fecha, tipo, descripcion } = req.body; // desestructura manualmente
 
     const nuevoRecordatorio = new Recordatorio({
-      usuario: req.user.id, // primero usuario
-      ...req.body,          // luego body para que no sobreescriba
+      titulo,
+      mascota,
+      fecha,
+      tipo,
+      descripcion: descripcion || "",
+      usuario: req.user.id, // ahora nada puede sobreescribirlo
     });
-
-    console.log("OBJETO ANTES DE GUARDAR:", JSON.stringify(nuevoRecordatorio.toObject()));
 
     const guardado = await nuevoRecordatorio.save();
     console.log("GUARDADO:", JSON.stringify(guardado));
@@ -34,7 +35,7 @@ export const crearRecordatorio = async (req, res) => {
 
     res.status(201).json(recordatorio);
   } catch (error) {
-    console.error("ERROR COMPLETO:", error.message);
+    console.error("ERROR:", error.message);
     res.status(500).json({ msg: error.message });
   }
 };
