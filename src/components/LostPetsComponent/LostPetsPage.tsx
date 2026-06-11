@@ -89,8 +89,7 @@ export default function LostPetsPage() {
       setMascotas((prev) => [data, ...prev]);
       setForm(EMPTY_FORM);
       setMostrarModal(false);
-      // intentar navegación para evitar warning de variable no usada en build
-      if (navigate) navigate('/mascotas-perdidas');
+      if (navigate) navigate('/perdidas');
     } catch (err) {
       console.error(err);
     }

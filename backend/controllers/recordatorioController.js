@@ -2,7 +2,7 @@ import Recordatorio from "../models/Recordatorio.js";
 
 export const obtenerRecordatorios = async (req, res) => {
   try {
-    const recordatorios = await Recordatorio.find()
+    const recordatorios = await Recordatorio.find({ usuario: req.user.id })
       .populate("mascota", "nombre");
 
     res.json(recordatorios);
@@ -14,7 +14,10 @@ export const obtenerRecordatorios = async (req, res) => {
 
 export const crearRecordatorio = async (req, res) => {
   try {
-    const nuevoRecordatorio = new Recordatorio(req.body);
+    const nuevoRecordatorio = new Recordatorio({
+      ...req.body,
+      usuario: req.user.id, 
+    });
     await nuevoRecordatorio.save();
 
     const recordatorio = await Recordatorio.findById(
