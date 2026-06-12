@@ -9,7 +9,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 
 type MascotaPerdida = {
   _id: string;
