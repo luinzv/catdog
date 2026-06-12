@@ -472,7 +472,7 @@ export default function LostPetsPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <FormFields />
+            {FormFields()}
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setMostrarModal(false)} className="px-5 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition">
                 Cancelar
@@ -495,7 +495,7 @@ export default function LostPetsPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <FormFields />
+            {FormFields()}
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => eliminar(editarId!)} className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold transition">
                 Eliminar
