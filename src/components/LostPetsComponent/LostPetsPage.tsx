@@ -76,7 +76,19 @@ export default function LostPetsPage() {
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
   useEffect(() => {
     obtenerMascotas();
     // Intentar obtener ubicación del usuario al cargar
@@ -442,22 +454,71 @@ export default function LostPetsPage() {
               </h1>
             </div>
             <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-8">
-              <nav className="flex gap-6 sm:gap-8">
+
+              {/* Desktop nav */}
+              <nav className="hidden md:flex gap-6 sm:gap-8">
                 <a href="#" className="text-gray-600 hover:text-blue-600 transition">Inicio</a>
-                <a href="/mascotas" className="text-gray-600 hover:text-blue-600 transition">Mascotas</a>
-                <a href="/recordatorios" className="text-gray-600 hover:text-blue-600 transition">Recordatorios</a>
-                <a href="/alertas" className="text-gray-600 hover:text-blue-600 transition">Alertas</a>
+
+                {/* Dropdown Gestión */}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="flex items-center gap-1 text-gray-600 hover:text-blue-600 transition"
+                  >
+                    Gestión
+                    <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {dropdownOpen && (
+                    <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-lg py-2 min-w-40 z-50">
+                      <a href="/mascotas" className="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 transition">Mascotas</a>
+                      <a href="/recordatorios" className="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 transition">Recordatorios</a>
+                      <a href="/alertas" className="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 transition">Alertas</a>
+                    </div>
+                  )}
+                </div>
+
                 <a href="/mascotas-perdidas" className="text-blue-600 font-medium">Perdidas</a>
                 <a href="/perfil" className="text-gray-600 font-medium hover:text-blue-600 transition">Perfil</a>
               </nav>
+
+              {/* Botón reportar desktop */}
               <button
                 onClick={() => { setForm(EMPTY_FORM); setSugerencias([]); setMostrarModal(true); }}
-                className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-6 py-3 flex items-center gap-2 transition-all"
+                className="hidden md:flex bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-6 py-3 items-center gap-2 transition-all"
               >
                 <Plus className="w-5 h-5" />
                 Reportar Mascota
               </button>
+
+              {/* Hamburger móvil */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden"
+                aria-label="Abrir menú"
+              >
+                <Menu className="w-6 h-6 text-slate-700" />
+              </button>
             </div>
+
+            {/* Menú móvil */}
+            {mobileMenuOpen && (
+              <div className="md:hidden flex flex-col gap-1 pt-4 border-t border-slate-100 mt-4">
+                <a href="#" className="text-gray-600 hover:text-blue-600 transition py-2">Inicio</a>
+                <a href="/mascotas-perdidas" className="text-blue-600 font-medium py-2">Perdidas</a>
+                <a href="/perfil" className="text-gray-600 hover:text-blue-600 transition py-2">Perfil</a>
+                <p className="text-xs text-slate-400 mt-2 mb-1">Gestión</p>
+                <a href="/mascotas" className="text-gray-600 hover:text-blue-600 transition py-2 pl-2">Mascotas</a>
+                <a href="/recordatorios" className="text-gray-600 hover:text-blue-600 transition py-2 pl-2">Recordatorios</a>
+                <a href="/alertas" className="text-gray-600 hover:text-blue-600 transition py-2 pl-2">Alertas</a>
+                <button
+                  onClick={() => { setForm(EMPTY_FORM); setSugerencias([]); setMostrarModal(true); setMobileMenuOpen(false); }}
+                  className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-6 py-3 flex items-center gap-2 transition-all mt-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Reportar Mascota
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -533,11 +594,10 @@ export default function LostPetsPage() {
               <button
                 key={f}
                 onClick={() => setFiltro(f)}
-                className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${
-                  filtro === f
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-                }`}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${filtro === f
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                  }`}
               >
                 {f}
               </button>
