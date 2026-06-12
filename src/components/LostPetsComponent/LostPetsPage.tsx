@@ -8,7 +8,7 @@ import {
   Search,
   AlertTriangle,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 type MascotaPerdida = {
@@ -22,6 +22,8 @@ type MascotaPerdida = {
   contacto: string;
   estado: "Perdida" | "Encontrada";
   usuario: { _id: string; nombre: string; email: string };
+  lat?: number;
+  lng?: number;
 };
 
 const EMPTY_FORM = {
@@ -32,10 +34,17 @@ const EMPTY_FORM = {
   fechaPerdida: "",
   ubicacion: "",
   contacto: "",
+  lat: null as number | null,
+  lng: null as number | null,
+};
+
+type Sugerencia = {
+  display_name: string;
+  lat: string;
+  lon: string;
 };
 
 export default function LostPetsPage() {
-  
   const [mascotas, setMascotas] = useState<MascotaPerdida[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<"Todas" | "Perdida" | "Encontrada">("Todas");
@@ -45,6 +54,10 @@ export default function LostPetsPage() {
   const [editarModal, setEditarModal] = useState(false);
   const [editarId, setEditarId] = useState<string | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
+
+  const [sugerencias, setSugerencias] = useState<Sugerencia[]>([]);
+  const [buscandoDireccion, setBuscandoDireccion] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const navigate = useNavigate();
@@ -73,8 +86,47 @@ export default function LostPetsPage() {
     }
   };
 
+  const buscarDirecciones = async (texto: string) => {
+    if (texto.length < 3) {
+      setSugerencias([]);
+      return;
+    }
+    setBuscandoDireccion(true);
+    try {
+      const query = encodeURIComponent(texto);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=5&accept-language=es&countrycodes=cl`,
+        { headers: { "Accept-Language": "es" } }
+      );
+      const data = await res.json();
+      setSugerencias(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setBuscandoDireccion(false);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleUbicacionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, ubicacion: e.target.value, lat: null, lng: null });
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      buscarDirecciones(e.target.value);
+    }, 500);
+  };
+
+  const seleccionarSugerencia = (s: Sugerencia) => {
+    setForm((prev) => ({
+      ...prev,
+      ubicacion: s.display_name,
+      lat: parseFloat(s.lat),
+      lng: parseFloat(s.lon),
+    }));
+    setSugerencias([]);
   };
 
   const crearReporte = async () => {
@@ -88,8 +140,8 @@ export default function LostPetsPage() {
       const data = await res.json();
       setMascotas((prev) => [data, ...prev]);
       setForm(EMPTY_FORM);
+      setSugerencias([]);
       setMostrarModal(false);
-      if (navigate) navigate('/perdidas');
     } catch (err) {
       console.error(err);
     }
@@ -105,7 +157,10 @@ export default function LostPetsPage() {
       fechaPerdida: m.fechaPerdida.slice(0, 10),
       ubicacion: m.ubicacion,
       contacto: m.contacto,
+      lat: m.lat || null,
+      lng: m.lng || null,
     });
+    setSugerencias([]);
     setEditarModal(true);
   };
 
@@ -163,6 +218,58 @@ export default function LostPetsPage() {
   const perdidas = mascotas.filter((m) => m.estado === "Perdida").length;
   const encontradas = mascotas.filter((m) => m.estado === "Encontrada").length;
 
+  // Campo de ubicación con autocomplete
+  const CampoUbicacion = () => (
+    <div className="relative">
+      <label className="text-xs font-semibold text-slate-700 mb-1 block">Ubicación *</label>
+      <div className="relative">
+        <input
+          name="ubicacion"
+          value={form.ubicacion}
+          onChange={handleUbicacionChange}
+          placeholder="Ej: Cerro Alegre, Valparaíso"
+          autoComplete="off"
+          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-300 pr-10"
+        />
+        {buscandoDireccion && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+      </div>
+
+      {/* Sugerencias */}
+      {sugerencias.length > 0 && (
+        <div className="absolute z-[100] w-full bg-white border border-gray-200 rounded-xl shadow-xl mt-1 overflow-hidden">
+          {sugerencias.map((s, i) => (
+            <button
+              key={i}
+              type="button"
+              onMouseDown={() => seleccionarSugerencia(s)}
+              className="w-full text-left px-4 py-3 text-sm hover:bg-blue-50 border-b border-gray-100 last:border-0 transition flex items-start gap-2"
+            >
+              <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+              <span className="text-slate-700 line-clamp-2">{s.display_name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Confirmación */}
+      {form.lat && form.lng ? (
+        <p className="text-xs text-emerald-600 mt-1 font-medium flex items-center gap-1">
+          <CheckCircle className="w-3 h-3" />
+          Ubicación confirmada
+        </p>
+      ) : form.ubicacion.length > 0 ? (
+        <p className="text-xs text-amber-500 mt-1 flex items-center gap-1">
+          <MapPin className="w-3 h-3" />
+          Selecciona una sugerencia para confirmar la ubicación
+        </p>
+      ) : null}
+    </div>
+  );
+
   const FormFields = () => (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
@@ -205,12 +312,7 @@ export default function LostPetsPage() {
         </div>
       </div>
 
-      <div>
-        <label className="text-xs font-semibold text-slate-700 mb-1 block">Ubicación *</label>
-        <input name="ubicacion" value={form.ubicacion} onChange={handleChange}
-          placeholder="Ej: Cerro Alegre, Valparaíso"
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-300" />
-      </div>
+      {CampoUbicacion()}
 
       <div>
         <label className="text-xs font-semibold text-slate-700 mb-1 block">URL de imagen</label>
@@ -246,7 +348,7 @@ export default function LostPetsPage() {
                 <a href="/perfil" className="text-gray-600 font-medium hover:text-blue-600 transition">Perfil</a>
               </nav>
               <button
-                onClick={() => { setForm(EMPTY_FORM); setMostrarModal(true); }}
+                onClick={() => { setForm(EMPTY_FORM); setSugerencias([]); setMostrarModal(true); }}
                 className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-6 py-3 flex items-center gap-2 transition-all"
               >
                 <Plus className="w-5 h-5" />
@@ -364,24 +466,19 @@ export default function LostPetsPage() {
                   key={mascota._id}
                   className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-105 border border-slate-100 group"
                 >
-                  {/* Imagen */}
                   <div className={`relative h-48 overflow-hidden ${
-                    esPerdida
-                      ? "bg-gradient-to-br from-red-100 to-red-200"
-                      : "bg-gradient-to-br from-emerald-100 to-emerald-200"
+                    esPerdida ? "bg-gradient-to-br from-red-100 to-red-200" : "bg-gradient-to-br from-emerald-100 to-emerald-200"
                   }`}>
                     <img
                       src={mascota.imagen || "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=500&h=500&fit=crop"}
                       alt={mascota.nombre}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
-                    {/* Badge estado */}
                     <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-bold ${
                       esPerdida ? "bg-red-500 text-white" : "bg-emerald-500 text-white"
                     }`}>
                       {mascota.estado}
                     </div>
-                    {/* Badge "Mi reporte" */}
                     {esMia && (
                       <div className="absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-bold bg-blue-600 text-white">
                         Mi reporte
@@ -390,13 +487,11 @@ export default function LostPetsPage() {
                   </div>
 
                   <div className="p-6">
-                    {/* Nombre y tipo */}
                     <div className="mb-3">
                       <h3 className="text-2xl font-bold text-slate-900">{mascota.nombre}</h3>
                       <p className="text-sm text-slate-500 mt-1">{mascota.tipo}</p>
                     </div>
 
-                    {/* Grid fecha / ubicación */}
                     <div className="grid grid-cols-2 gap-3 mb-3 pb-4 border-b border-slate-100">
                       <div className="bg-blue-50 rounded-2xl p-3">
                         <p className="text-xs text-slate-600 font-medium">Fecha</p>
@@ -410,21 +505,18 @@ export default function LostPetsPage() {
                       </div>
                     </div>
 
-                    {/* Descripción */}
                     <p className="text-xs text-slate-600 font-medium mb-1">Descripción</p>
                     <p className="text-sm text-slate-700 mb-4 line-clamp-2">{mascota.descripcion}</p>
 
-                    {/* Contacto e info usuario */}
-                    <div className="flex items-center gap-2 mb-4 text-sm text-slate-600">
+                    <div className="flex items-center gap-2 mb-2 text-sm text-slate-600">
                       <Phone className="w-4 h-4 shrink-0 text-blue-500" />
                       <span className="font-medium">{mascota.contacto}</span>
                     </div>
                     <div className="flex items-center gap-2 mb-4 text-sm text-slate-500">
                       <MapPin className="w-4 h-4 shrink-0 text-cyan-500" />
-                      <span>{mascota.ubicacion}</span>
+                      <span className="truncate">{mascota.ubicacion}</span>
                     </div>
 
-                    {/* Botones */}
                     <div className="flex gap-2">
                       {esMia && esPerdida && (
                         <button
@@ -468,13 +560,13 @@ export default function LostPetsPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-slate-900">Reportar Mascota Perdida</h2>
-              <button onClick={() => setMostrarModal(false)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => { setMostrarModal(false); setSugerencias([]); }} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
             {FormFields()}
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setMostrarModal(false)} className="px-5 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition">
+              <button onClick={() => { setMostrarModal(false); setSugerencias([]); }} className="px-5 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition">
                 Cancelar
               </button>
               <button onClick={crearReporte} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition">
@@ -491,7 +583,7 @@ export default function LostPetsPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-slate-900">Editar Reporte</h2>
-              <button onClick={() => setEditarModal(false)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => { setEditarModal(false); setSugerencias([]); }} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -500,7 +592,7 @@ export default function LostPetsPage() {
               <button onClick={() => eliminar(editarId!)} className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold transition">
                 Eliminar
               </button>
-              <button onClick={() => setEditarModal(false)} className="px-5 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition">
+              <button onClick={() => { setEditarModal(false); setSugerencias([]); }} className="px-5 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition">
                 Cancelar
               </button>
               <button onClick={guardarEdicion} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition">
