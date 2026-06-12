@@ -1,7 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css'
-import {Dashboard, UserProfile, PetMedicalRecord, PetReminders, UserWelcome, PetProfile, LostPetsComponent, AlertsPage} from './components/index';
+import {Dashboard, UserProfile, PetMedicalRecord, PetReminders, UserWelcome, PetProfile, LostPetsComponent, AlertsPage, MapPage} from './components/index';
 import PrivateRoute from '../backend/routes/PrivateRoute';
+
 function App() {
 
   return (
@@ -37,6 +38,11 @@ function App() {
         <Route path="/alertas" element={
           <PrivateRoute>
             <AlertsPage />
+          </PrivateRoute>
+        } />
+        <Route path="/mapa" element={
+          <PrivateRoute>
+            <MapPage />
           </PrivateRoute>
         } />
       </Routes>

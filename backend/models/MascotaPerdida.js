@@ -11,6 +11,8 @@ const mascotaPerdidaSchema = new mongoose.Schema(
     contacto: { type: String, required: true },
     estado: { type: String, enum: ["Perdida", "Encontrada"], default: "Perdida" },
     usuario: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario", required: true },
+    lat: { type: Number, default: null },
+    lng: { type: Number, default: null },
   },
   { timestamps: true }
 );

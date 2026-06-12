@@ -6,3 +6,4 @@ export { default as UserWelcome } from './UserWelcomeComponent/UserWelcome';
 export { default as PetProfile } from './PetProfileComponent/PetProfile';
 export { default as LostPetsComponent } from './LostPetsComponent/LostPetsPage';
 export { default as AlertsPage } from './AlertsPageComponent/AlertsPage';
+export { default as MapPage } from './MapPageComponent/MapPage';
