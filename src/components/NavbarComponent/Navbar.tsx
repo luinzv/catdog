@@ -84,7 +84,7 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
         <div className="flex items-center justify-between h-16 md:h-20">
 
           {/* Logo + Título */}
-          <div className="cursor-pointer" onClick={() => navigate("/dashboard")}>
+          <div className="cursor-pointer shrink-0" onClick={() => navigate("/dashboard")}>
             <p className="text-lg font-bold bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent leading-tight">
               CatDog
             </p>
@@ -93,28 +93,14 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
             </p>
           </div>
 
-          {/* NAV DESKTOP */}
-          <nav className="hidden md:flex items-center gap-1" ref={dropdownRef}>
-            {NAV_ITEMS.map((item) => (
-              <div key={item.label} className="relative">
-                {item.href ? (
-                  <button
-                    onClick={() => navigate(item.href!)}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                      isActive(item)
-                        ? "bg-blue-600 text-white shadow-md shadow-blue-200"
-                        : "text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    <item.icon className="w-4 h-4" />
-                    {item.label}
-                  </button>
-                ) : (
-                  <div>
+          {/* NAV DESKTOP + BOTÓN agrupados a la derecha */}
+          <div className="hidden md:flex items-center gap-2">
+            <nav className="flex items-center gap-1" ref={dropdownRef}>
+              {NAV_ITEMS.map((item) => (
+                <div key={item.label} className="relative">
+                  {item.href ? (
                     <button
-                      onClick={() =>
-                        setDropdownAbierto(dropdownAbierto === item.label ? null : item.label)
-                      }
+                      onClick={() => navigate(item.href!)}
                       className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                         isActive(item)
                           ? "bg-blue-600 text-white shadow-md shadow-blue-200"
@@ -123,61 +109,81 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
                     >
                       <item.icon className="w-4 h-4" />
                       {item.label}
-                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${dropdownAbierto === item.label ? "rotate-180" : ""}`} />
                     </button>
+                  ) : (
+                    <div>
+                      <button
+                        onClick={() =>
+                          setDropdownAbierto(dropdownAbierto === item.label ? null : item.label)
+                        }
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                          isActive(item)
+                            ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+                            : "text-slate-600 hover:bg-slate-100"
+                        }`}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        {item.label}
+                        <ChevronDown
+                          className={`w-3.5 h-3.5 transition-transform ${
+                            dropdownAbierto === item.label ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
 
-                    {dropdownAbierto === item.label && (
-                      <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-                        {item.children!.map((child) => (
-                          <button
-                            key={child.href}
-                            onClick={() => { navigate(child.href); setDropdownAbierto(null); }}
-                            className={`w-full flex items-center gap-2.5 px-4 py-3 text-sm transition hover:bg-blue-50 ${
-                              isChildActive(child.href)
-                                ? "bg-blue-50 text-blue-600 font-semibold"
-                                : "text-slate-600 font-medium"
-                            }`}
-                          >
-                            <child.icon className="w-4 h-4 shrink-0" />
-                            {child.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </nav>
+                      {dropdownAbierto === item.label && (
+                        <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+                          {item.children!.map((child) => (
+                            <button
+                              key={child.href}
+                              onClick={() => { navigate(child.href); setDropdownAbierto(null); }}
+                              className={`w-full flex items-center gap-2.5 px-4 py-3 text-sm transition hover:bg-blue-50 ${
+                                isChildActive(child.href)
+                                  ? "bg-blue-50 text-blue-600 font-semibold"
+                                  : "text-slate-600 font-medium"
+                              }`}
+                            >
+                              <child.icon className="w-4 h-4 shrink-0" />
+                              {child.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </nav>
 
-          {/* BOTÓN ACCIÓN DESKTOP + HAMBURGUESA MÓVIL */}
-          <div className="flex items-center gap-2">
-            {/* Botón acción — visible en desktop */}
+            {/* Separador + botón acción */}
+            {action && (
+              <>
+                <div className="w-px h-6 bg-slate-200 mx-1" />
+                <button
+                  onClick={action.onClick}
+                  className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-5 py-2.5 text-sm transition-all"
+                >
+                  <action.icon className="w-4 h-4" />
+                  {action.label}
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* MÓVIL: botón acción + hamburguesa */}
+          <div className="md:hidden flex items-center gap-2">
             {action && (
               <button
                 onClick={action.onClick}
-                className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-5 py-2.5 text-sm transition-all"
+                className="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-xl px-3 py-2 text-xs transition-all"
               >
                 <action.icon className="w-4 h-4" />
                 {action.label}
               </button>
             )}
-
-            {/* Botón acción — visible en móvil (compacto) */}
-            {action && (
-              <button
-                onClick={action.onClick}
-                className="md:hidden flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-xl px-3 py-2 text-xs transition-all"
-              >
-                <action.icon className="w-4 h-4" />
-                {action.label}
-              </button>
-            )}
-
-            {/* Hamburguesa */}
             <button
               onClick={() => setMenuAbierto(!menuAbierto)}
-              className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 transition"
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 transition"
             >
               {menuAbierto
                 ? <X className="w-5 h-5 text-slate-700" />
@@ -232,6 +238,19 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
                 )}
               </div>
             ))}
+
+            {/* Botón acción en menú móvil expandido */}
+            {action && (
+              <div className="pt-2 pb-1">
+                <button
+                  onClick={() => { action.onClick(); setMenuAbierto(false); }}
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-xl px-4 py-3 text-sm transition-all"
+                >
+                  <action.icon className="w-4 h-4" />
+                  {action.label}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
