@@ -221,10 +221,6 @@ export default function PetReminders() {
 
         {/* MASCOTAS */}
         <div className="mb-10">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-            Agregar recordatorio a una mascota
-          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mascotas.map((mascota) => (
               <div
