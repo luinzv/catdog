@@ -77,7 +77,7 @@ export default function LostPetsPage() {
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  
+
   useEffect(() => {
     obtenerMascotas();
     detectarUbicacion(false);
@@ -430,7 +430,14 @@ export default function LostPetsPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
 
       {/* HEADER */}
-      <Navbar title="Mascotas Perdidas" />
+      <Navbar
+        title="Mascotas Perdidas"
+        action={{
+          label: "Reportar Mascota",
+          icon: Plus,
+          onClick: () => { setForm(EMPTY_FORM); setSugerencias([]); setMostrarModal(true); }
+        }}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -503,11 +510,10 @@ export default function LostPetsPage() {
               <button
                 key={f}
                 onClick={() => setFiltro(f)}
-                className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${
-                  filtro === f
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${filtro === f
                     ? "bg-blue-600 text-white shadow-md"
                     : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 {f}
               </button>
