@@ -145,7 +145,7 @@ export default function DashboardComponent() {
             setPassword('');
             setConfirmPassword('');
             setNombre('');
-            navigate('/perfil');
+            navigate('/dashboard');
         } catch (err: any) {
             console.error("Detalles del error:", err);
             setError(err.message || 'Error desconocido');
