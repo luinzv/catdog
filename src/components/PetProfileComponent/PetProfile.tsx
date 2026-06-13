@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { Navbar } from "../index";
 type Mascota = {
   _id: string;
   nombre: string;
@@ -239,6 +239,7 @@ export default function PetsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
       {/* HEADER */}
+      <Navbar title="Mis Mascotas" />
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
