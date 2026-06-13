@@ -27,7 +27,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: PawPrint,
     children: [
       { label: "Mis Mascotas", href: "/mascotas", icon: PawPrint },
-      { label: "Mascotas Perdidas", href: "/mascotas-perdidas", icon: Search },
+      { label: "Mascotas Perdidas", href: "/perdidos", icon: Search },
       { label: "Mapa", href: "/mapa", icon: Map },
     ],
   },
