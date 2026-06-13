@@ -50,7 +50,13 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-export default function Navbar({ title }: { title: string }) {
+type NavAction = {
+  label: string;
+  icon: React.ElementType;
+  onClick: () => void;
+};
+
+export default function Navbar({ title, action }: { title: string; action?: NavAction }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuAbierto, setMenuAbierto] = useState(false);
