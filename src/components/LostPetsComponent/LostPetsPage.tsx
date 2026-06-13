@@ -79,7 +79,6 @@ export default function LostPetsPage() {
   
   useEffect(() => {
     obtenerMascotas();
-    // Intentar obtener ubicación del usuario al cargar
     detectarUbicacion(false);
   }, []);
 
