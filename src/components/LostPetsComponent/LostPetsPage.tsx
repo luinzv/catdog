@@ -10,6 +10,7 @@ import {
   LocateFixed,
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
+import Navbar from "../NavbarComponent/Navbar";
 
 type MascotaPerdida = {
   _id: string;
@@ -429,37 +430,7 @@ export default function LostPetsPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
 
       {/* HEADER */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-slate-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                CatDog
-              </h1>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
-                Mascotas Perdidas
-              </h1>
-            </div>
-            <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-8">
-              <nav className="flex gap-6 sm:gap-8">
-                <a href="#" className="text-gray-600 hover:text-blue-600 transition">Inicio</a>
-                <a href="/mascotas" className="text-gray-600 hover:text-blue-600 transition">Mascotas</a>
-                <a href="/recordatorios" className="text-gray-600 hover:text-blue-600 transition">Recordatorios</a>
-                <a href="/alertas" className="text-gray-600 hover:text-blue-600 transition">Alertas</a>
-                <a href="/mascotas-perdidas" className="text-blue-600 font-medium">Perdidas</a>
-                <a href="/perfil" className="text-gray-600 font-medium hover:text-blue-600 transition">Perfil</a>
-              </nav>
-              <button
-                onClick={() => { setForm(EMPTY_FORM); setSugerencias([]); setMostrarModal(true); }}
-                className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-6 py-3 flex items-center gap-2 transition-all"
-              >
-                <Plus className="w-5 h-5" />
-                Reportar Mascota
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar title="Mascotas Perdidas" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 

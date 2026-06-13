@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../NavbarComponent/Navbar";
 
 type Mascota = {
   _id: string;
@@ -133,30 +134,8 @@ export default function AlertsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
 
-      {/* HEADER — idéntico al de mascotas */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-slate-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                CatDog
-              </h1>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
-                Alertas
-              </h1>
-            </div>
-            <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-8">
-              <nav className="flex gap-6 sm:gap-8">
-                <a href="#" className="text-gray-600 hover:text-blue-600 transition">Inicio</a>
-                <a href="/mascotas" className="text-gray-600 hover:text-blue-600 transition">Mascotas</a>
-                <a href="/recordatorios" className="text-gray-600 hover:text-blue-600 transition">Recordatorios</a>
-                <a href="/alertas" className="text-blue-600 font-medium">Alertas</a>
-                <a href="/perfil" className="text-gray-600 font-medium hover:text-blue-600 transition">Perfil</a>
-              </nav>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* HEADER */}
+      <Navbar title="Alertas" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
