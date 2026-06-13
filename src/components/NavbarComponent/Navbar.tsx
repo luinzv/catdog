@@ -21,11 +21,7 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  {
-    label: "Inicio",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
+  { label: "Inicio", href: "/dashboard", icon: LayoutDashboard },
   {
     label: "Mascotas",
     icon: PawPrint,
@@ -43,11 +39,7 @@ const NAV_ITEMS: NavItem[] = [
       { label: "Alertas", href: "/alertas", icon: AlertTriangle },
     ],
   },
-  {
-    label: "Perfil",
-    href: "/perfil",
-    icon: User,
-  },
+  { label: "Perfil", href: "/perfil", icon: User },
 ];
 
 type NavAction = {
@@ -63,7 +55,6 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
   const [dropdownAbierto, setDropdownAbierto] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Cierra dropdown al hacer click fuera
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -74,7 +65,6 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Cierra menú móvil al cambiar de ruta
   useEffect(() => {
     setMenuAbierto(false);
     setDropdownAbierto(null);
@@ -94,10 +84,7 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
         <div className="flex items-center justify-between h-16 md:h-20">
 
           {/* Logo + Título */}
-          <div
-            className="cursor-pointer"
-            onClick={() => navigate("/dashboard")}
-          >
+          <div className="cursor-pointer" onClick={() => navigate("/dashboard")}>
             <p className="text-lg font-bold bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent leading-tight">
               CatDog
             </p>
@@ -111,7 +98,6 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
             {NAV_ITEMS.map((item) => (
               <div key={item.label} className="relative">
                 {item.href ? (
-                  // Link simple
                   <button
                     onClick={() => navigate(item.href!)}
                     className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
@@ -124,13 +110,10 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
                     {item.label}
                   </button>
                 ) : (
-                  // Dropdown
                   <div>
                     <button
                       onClick={() =>
-                        setDropdownAbierto(
-                          dropdownAbierto === item.label ? null : item.label
-                        )
+                        setDropdownAbierto(dropdownAbierto === item.label ? null : item.label)
                       }
                       className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                         isActive(item)
@@ -140,23 +123,15 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
                     >
                       <item.icon className="w-4 h-4" />
                       {item.label}
-                      <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${
-                          dropdownAbierto === item.label ? "rotate-180" : ""
-                        }`}
-                      />
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${dropdownAbierto === item.label ? "rotate-180" : ""}`} />
                     </button>
 
-                    {/* Dropdown panel */}
                     {dropdownAbierto === item.label && (
                       <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
                         {item.children!.map((child) => (
                           <button
                             key={child.href}
-                            onClick={() => {
-                              navigate(child.href);
-                              setDropdownAbierto(null);
-                            }}
+                            onClick={() => { navigate(child.href); setDropdownAbierto(null); }}
                             className={`w-full flex items-center gap-2.5 px-4 py-3 text-sm transition hover:bg-blue-50 ${
                               isChildActive(child.href)
                                 ? "bg-blue-50 text-blue-600 font-semibold"
@@ -175,16 +150,41 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
             ))}
           </nav>
 
-          {/* BOTÓN HAMBURGUESA MÓVIL */}
-          <button
-            onClick={() => setMenuAbierto(!menuAbierto)}
-            className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 transition"
-          >
-            {menuAbierto
-              ? <X className="w-5 h-5 text-slate-700" />
-              : <Menu className="w-5 h-5 text-slate-700" />
-            }
-          </button>
+          {/* BOTÓN ACCIÓN DESKTOP + HAMBURGUESA MÓVIL */}
+          <div className="flex items-center gap-2">
+            {/* Botón acción — visible en desktop */}
+            {action && (
+              <button
+                onClick={action.onClick}
+                className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold rounded-2xl px-5 py-2.5 text-sm transition-all"
+              >
+                <action.icon className="w-4 h-4" />
+                {action.label}
+              </button>
+            )}
+
+            {/* Botón acción — visible en móvil (compacto) */}
+            {action && (
+              <button
+                onClick={action.onClick}
+                className="md:hidden flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-xl px-3 py-2 text-xs transition-all"
+              >
+                <action.icon className="w-4 h-4" />
+                {action.label}
+              </button>
+            )}
+
+            {/* Hamburguesa */}
+            <button
+              onClick={() => setMenuAbierto(!menuAbierto)}
+              className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 transition"
+            >
+              {menuAbierto
+                ? <X className="w-5 h-5 text-slate-700" />
+                : <Menu className="w-5 h-5 text-slate-700" />
+              }
+            </button>
+          </div>
         </div>
       </div>
 
@@ -208,7 +208,6 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
                   </button>
                 ) : (
                   <div>
-                    {/* Grupo con label */}
                     <p className="px-4 pt-3 pb-1 text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
                       <item.icon className="w-3.5 h-3.5" />
                       {item.label}
