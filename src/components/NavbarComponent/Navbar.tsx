@@ -2,7 +2,6 @@ import {
   PawPrint,
   Bell,
   AlertTriangle,
-  MapPin,
   User,
   Menu,
   X,
