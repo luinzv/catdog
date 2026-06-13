@@ -8,3 +8,4 @@ export { default as LostPetsComponent } from './LostPetsComponent/LostPetsPage';
 export { default as AlertsPage } from './AlertsPageComponent/AlertsPage';
 export { default as MapPage } from './MapPageComponent/MapPage';
 export { default as DashboardPage } from './DashboardPageComponent/DashboardPage';
+export { default as Navbar } from './NavbarComponent/Navbar';
