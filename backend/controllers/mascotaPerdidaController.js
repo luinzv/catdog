@@ -63,6 +63,7 @@ export const marcarEncontrada = async (req, res) => {
       return res.status(403).json({ msg: "No autorizado" });
 
     mascota.estado = "Encontrada";
+    mascota.fechaEncontrada = new Date(); // <-- guarda la fecha
     await mascota.save();
     res.json(mascota);
   } catch (error) {

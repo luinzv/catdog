@@ -9,13 +9,15 @@ import alergiasRoutes from "./routes/alergiasRoutes.js";
 import recordatorioRoutes from "./routes/recordatorioRoutes.js";
 import mascotaPerdidaRoutes from "./routes/mascotaPerdidaRoutes.js";
 import cors from "cors";
-
+import { limpiarMascotasEncontradas } from "./utils/limpiarEncontradas.js";
 
 dotenv.config();
 connectDB();
 
 const app = express();
 
+limpiarMascotasEncontradas();
+setInterval(limpiarMascotasEncontradas, 24 * 60 * 60 * 1000); 
 app.use(express.json()); 
 const corsOptions = {
   origin: true,

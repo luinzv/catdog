@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import Navbar from "../NavbarComponent/Navbar";
 
-// Fix iconos default de Leaflet en Vite
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
@@ -19,7 +18,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
-// SVG del gato inline
 const SVG_GATO = `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
 <g fill="#3e4347"><path d="M2.3 36.1c-.2-1-.3-2-.2-2.9c0-1.2.3-2.2.9-3.2c.6-1.1 1.6-2 2.7-2.5c1.1-.6 2.5-.8 3.8-.6c1.2.1 2.4.6 3.4 1.3c.9.6 1.7 1.4 2.4 2.3c1.1 1.5 1.9 3.3 2.3 5.4v.3c.2 1.3-.6 2.5-1.9 2.9c-.2.1-.4.1-.6.1c-.8.1-1.5-.1-2.1-.6c-.6-.5-1-1.1-1.1-1.9c-.2-1.4-.5-2.6-1.1-3.5c-.5-.9-1.3-1.6-2.1-1.8c-.3-.1-.7-.1-1 0c-.4.1-.7.4-.9.7c-.3.4-.5.8-.5 1.4c-.1.6-.1 1.2 0 1.8c.2 1.2.6 2.6 1.3 4c.3.6.7 1.3 1.1 2c.4.7.9 1.3 1.3 1.8c1.1 1.3 2.1 2.3 3.2 3.1c1.3.9 2.6 1.5 3.9 1.7c1.3.2 2.8.2 4.3-.3c1.2-.3 1.9.1 2.1.7c.2.5-.1 1.3-1.3 1.7h-.1c-1.8.6-3.7.8-5.4.5c-1.7-.2-3.5-1-5.2-2c-1.4-.9-2.6-2.1-3.9-3.5c-.5-.6-1-1.2-1.4-1.7L6 43c-.6-.7-1.1-1.4-1.5-2.1c-1.2-1.6-1.9-3.2-2.2-4.8"/><path d="M46.7 55.9c1.8 2.3 9.7 0 11-2.6c5.2-10.6 0-15.2 0-15.2l-11 1.5c0 .1-2.2 13.5 0 16.3"/><path d="M31.8 55.9c-1.8 2.3-9.7 0-11-2.6c-5.2-10.6 0-15.2 0-15.2l11 1.5c0 .1 2.3 13.5 0 16.3"/></g>
 <g fill="#ffffff"><path d="M34.5 55.2c-.1 1.1-2.6 1.7-5.6 1.4c-3-.3-5.3-1.3-5.3-2.4c.1-1.1 2.4.3 5.4.5c3.1.4 5.6-.5 5.5.5"/><path d="M44 55.2c.1 1.1 2.6 1.7 5.6 1.4c3-.3 5.3-1.3 5.3-2.4c-.1-1.1-2.4.3-5.4.5c-3.1.4-5.6-.5-5.5.5"/></g>
@@ -42,7 +40,6 @@ const SVG_GATO = `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" wi
 <g fill="#3e4347"><path d="M29.6 61.2l1.4-2.4l-.4 2.8z"/><path d="M33.1 62l.5-3.3l.5 3.3z"/><path d="M37 61.6l-.4-2.6l1.4 2.3z"/><path d="M48 61.6l-.4-2.8l1.4 2.4z"/><path d="M44.4 62l.5-3.3l.5 3.3z"/><path d="M40.5 61.3l1.4-2.3l-.4 2.6z"/></g>
 </svg>`;
 
-// SVG del perro inline
 const SVG_PERRO = `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
 <path d="M14.1 46.2C8 45.7 3 38 3 38c0 9.5 8.4 13 12.2 11.7c3.4-1.1-1.1-3.5-1.1-3.5z" fill="#947151"/>
 <path d="M41.3 56c1.7 2 9.5 0 10.8-2.3c5.1-9.5 0-15.6 0-15.6l-10.8 3.3c0 .1-2.2 12.1 0 14.6" fill="#eabc92"/>
@@ -69,14 +66,13 @@ const SVG_PERRO = `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" w
 <g fill="#3e4347"><path d="M28.7 28.7c0-2.3 2.4-2.7 5.3-2.7s5.3.4 5.3 2.7c0 1.8-4.2 3.4-5.3 3.4c-1 0-5.3-1.6-5.3-3.4"/><path d="M27.1 30.7l-.9.9l.9.9l.9-.9z"/><path d="M25 33.1l-.9.9l.9.9l.9-.9z"/><path d="M27.8 34l-.9.9l.9.9l.9-.9z"/><path d="M41 30.7l.9.9l-.9.9l-.9-.9z"/><path d="M43.1 33.1l.9.9l-.9.9l-.9-.9z"/><path d="M40.3 34l.9.9l-.9.9l-.9-.9z"/></g>
 </svg>`;
 
-// Crear icono con SVG personalizado + pin rojo
-const crearIcono = (tipo: string) => {
+const crearIcono = (tipo: string, estado: "Perdida" | "Encontrada") => {
   const svgAnimal = tipo === "Gato" ? SVG_GATO : SVG_PERRO;
+  const color = estado === "Perdida" ? "#ef4444" : "#10b981";
 
   return L.divIcon({
     html: `
       <div style="position: relative; width: 48px; height: 56px;">
-        <!-- Pin rojo de fondo -->
         <div style="
           position: absolute;
           bottom: 0;
@@ -84,7 +80,7 @@ const crearIcono = (tipo: string) => {
           transform: translateX(-50%);
           width: 16px;
           height: 16px;
-          background: #ef4444;
+          background: ${color};
           border-radius: 50%;
           box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         "></div>
@@ -95,9 +91,8 @@ const crearIcono = (tipo: string) => {
           transform: translateX(-50%);
           width: 2px;
           height: 12px;
-          background: #ef4444;
+          background: ${color};
         "></div>
-        <!-- Círculo blanco con el SVG -->
         <div style="
           position: absolute;
           top: 0;
@@ -107,7 +102,7 @@ const crearIcono = (tipo: string) => {
           height: 44px;
           background: white;
           border-radius: 50%;
-          border: 3px solid #ef4444;
+          border: 3px solid ${color};
           box-shadow: 0 3px 10px rgba(0,0,0,0.25);
           display: flex;
           align-items: center;
@@ -176,7 +171,7 @@ export default function MapPage() {
   const [mascotas, setMascotas] = useState<MascotaConCoords[]>([]);
   const [loading, setLoading] = useState(true);
   const [geocodificando, setGeocodificando] = useState(false);
-  const [filtro, setFiltro] = useState<"Todas" | "Perdida">("Todas");
+  const [filtro, setFiltro] = useState<"Todas" | "Perdida" | "Encontrada">("Todas");
   const [busqueda, setBusqueda] = useState("");
   const [seleccionada, setSeleccionada] = useState<MascotaConCoords | null>(null);
 
@@ -192,9 +187,7 @@ export default function MapPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      // Solo mascotas PERDIDAS
-      const lista: MascotaPerdida[] = (Array.isArray(data) ? data : [])
-        .filter((m: MascotaPerdida) => m.estado === "Perdida");
+      const lista: MascotaPerdida[] = Array.isArray(data) ? data : [];
 
       setGeocodificando(true);
       const conCoords: MascotaConCoords[] = [];
@@ -228,6 +221,9 @@ export default function MapPage() {
       m.ubicacion.toLowerCase().includes(busqueda.toLowerCase())
     );
 
+  const perdidas = mascotas.filter((m) => m.estado === "Perdida").length;
+  const encontradas = mascotas.filter((m) => m.estado === "Encontrada").length;
+
   const centro: [number, number] = [-33.0472, -71.6127];
 
   return (
@@ -254,7 +250,7 @@ export default function MapPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-slate-600 text-sm font-medium">Perdidas</p>
-                <p className="text-4xl font-bold text-red-500 mt-1">{mascotas.length}</p>
+                <p className="text-4xl font-bold text-red-500 mt-1">{perdidas}</p>
               </div>
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                 <AlertTriangle className="w-6 h-6 text-red-500" />
@@ -266,7 +262,7 @@ export default function MapPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-slate-600 text-sm font-medium">Encontradas</p>
-                <p className="text-4xl font-bold text-emerald-600 mt-1">No mostradas</p>
+                <p className="text-4xl font-bold text-emerald-600 mt-1">{encontradas}</p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
                 <CheckCircle className="w-6 h-6 text-emerald-600" />
@@ -293,13 +289,17 @@ export default function MapPage() {
                 />
               </div>
               <div className="flex gap-2">
-                {(["Todas", "Perdida"] as const).map((f) => (
+                {(["Todas", "Perdida", "Encontrada"] as const).map((f) => (
                   <button
                     key={f}
                     onClick={() => setFiltro(f)}
                     className={`flex-1 py-1.5 rounded-xl text-xs font-semibold transition ${
                       filtro === f
-                        ? "bg-blue-600 text-white"
+                        ? f === "Perdida"
+                          ? "bg-red-500 text-white"
+                          : f === "Encontrada"
+                          ? "bg-emerald-500 text-white"
+                          : "bg-blue-600 text-white"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                   >
@@ -314,7 +314,7 @@ export default function MapPage() {
               <div className="p-4 border-b border-slate-100">
                 <h2 className="font-bold text-slate-900 flex items-center gap-2">
                   <Filter className="w-4 h-4 text-blue-600" />
-                  Mascotas perdidas ({mascotasFiltradas.length})
+                  Mascotas ({mascotasFiltradas.length})
                 </h2>
               </div>
 
@@ -347,7 +347,11 @@ export default function MapPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <p className="font-bold text-slate-900 text-sm truncate">{mascota.nombre}</p>
-                          <span className="shrink-0 text-xs px-2 py-0.5 rounded-full font-semibold bg-red-100 text-red-600">
+                          <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-semibold ${
+                            mascota.estado === "Perdida"
+                              ? "bg-red-100 text-red-600"
+                              : "bg-emerald-100 text-emerald-600"
+                          }`}>
                             {mascota.tipo}
                           </span>
                         </div>
@@ -373,6 +377,14 @@ export default function MapPage() {
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-5 rounded-full bg-white border-2 border-red-500 flex items-center justify-center text-xs">🐱</div>
                   <span className="text-xs text-slate-600">Gato perdido</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-white border-2 border-emerald-500 flex items-center justify-center text-xs">🐶</div>
+                  <span className="text-xs text-slate-600">Perro encontrado</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-white border-2 border-emerald-500 flex items-center justify-center text-xs">🐱</div>
+                  <span className="text-xs text-slate-600">Gato encontrado</span>
                 </div>
               </div>
             </div>
@@ -402,7 +414,7 @@ export default function MapPage() {
                     <Marker
                       key={mascota._id}
                       position={[mascota.lat, mascota.lng]}
-                      icon={crearIcono(mascota.tipo)}
+                      icon={crearIcono(mascota.tipo, mascota.estado)}
                       eventHandlers={{ click: () => setSeleccionada(mascota) }}
                     >
                       <Popup>
@@ -414,8 +426,12 @@ export default function MapPage() {
                           />
                           <p className="font-bold text-slate-900 text-base">{mascota.nombre}</p>
                           <p className="text-xs text-slate-500 mb-1">{mascota.tipo}</p>
-                          <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-red-100 text-red-600">
-                            Perdida
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                            mascota.estado === "Perdida"
+                              ? "bg-red-100 text-red-600"
+                              : "bg-emerald-100 text-emerald-600"
+                          }`}>
+                            {mascota.estado}
                           </span>
                           <p className="text-xs text-slate-600 mt-2 flex items-center gap-1">
                             <MapPin className="w-3 h-3" /> {mascota.ubicacion}
@@ -426,6 +442,7 @@ export default function MapPage() {
                           <p className="text-xs text-slate-500 mt-1">
                             {new Date(mascota.fechaPerdida).toLocaleDateString()}
                           </p>
+                          
                           <a
                             href="/mascotas-perdidas"
                             className="mt-2 block text-center text-xs bg-blue-600 text-white py-1.5 rounded-lg font-semibold"

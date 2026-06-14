@@ -7,6 +7,10 @@ const mascotaPerdidaSchema = new mongoose.Schema(
     descripcion: { type: String, required: true },
     imagen: { type: String, default: "" },
     fechaPerdida: { type: Date, required: true },
+    fechaEncontrada: {
+      type: Date,
+      default: null,
+    },
     ubicacion: { type: String, required: true },
     contacto: { type: String, required: true },
     estado: { type: String, enum: ["Perdida", "Encontrada"], default: "Perdida" },
