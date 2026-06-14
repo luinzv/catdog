@@ -188,7 +188,7 @@ export default function DashboardPage() {
           <div className="absolute right-16 bottom-0 w-32 h-32 bg-white/10 rounded-full translate-y-1/2" />
           <div className="relative">
             <p className="text-blue-100 text-sm font-medium mb-1">{saludo()},</p>
-            <h2 className="text-3xl font-bold mb-2">{user.nombre || "Usuario"} 👋</h2>
+            <h2 className="text-3xl font-bold mb-2">{user.nombre || "Usuario"} 😡</h2>
             <p className="text-blue-100 text-sm">
               Tienes <span className="font-bold text-white">{mascotas.length}</span> mascota{mascotas.length !== 1 ? "s" : ""} registrada{mascotas.length !== 1 ? "s" : ""}
               {alertasCriticas > 0 && (
