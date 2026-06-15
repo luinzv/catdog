@@ -161,7 +161,7 @@ export default function DashboardPage() {
     { label: "Mis Mascotas", icon: PawPrint, href: "/mascotas", color: "bg-blue-100 text-blue-600", hover: "hover:bg-blue-200" },
     { label: "Recordatorios", icon: Bell, href: "/recordatorios", color: "bg-purple-100 text-purple-600", hover: "hover:bg-purple-200" },
     { label: "Alertas", icon: AlertTriangle, href: "/alertas", color: "bg-red-100 text-red-600", hover: "hover:bg-red-200" },
-    { label: "Perdidas", icon: Search, href: "/mascotas-perdidas", color: "bg-orange-100 text-orange-600", hover: "hover:bg-orange-200" },
+    { label: "Perdidos", icon: Search, href: "/perdidos", color: "bg-orange-100 text-orange-600", hover: "hover:bg-orange-200" },
     { label: "Mapa", icon: MapPin, href: "/mapa", color: "bg-cyan-100 text-cyan-600", hover: "hover:bg-cyan-200" },
     { label: "Mi Perfil", icon: User, href: "/perfil", color: "bg-emerald-100 text-emerald-600", hover: "hover:bg-emerald-200" },
   ];
@@ -525,7 +525,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-slate-900">Mascotas Perdidas Recientes</h2>
               <button
-                onClick={() => navigate("/mascotas-perdidas")}
+                onClick={() => navigate("/perdidos")}
                 className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
               >
                 Ver todas <ChevronRight className="w-4 h-4" />
@@ -535,7 +535,7 @@ export default function DashboardPage() {
               {mascotasPerdidas.map((m) => (
                 <div
                   key={m._id}
-                  onClick={() => navigate("/mascotas-perdidas")}
+                  onClick={() => navigate("/perdidos")}
                   className="bg-white rounded-3xl overflow-hidden shadow-sm border border-red-100 hover:shadow-md transition-all hover:scale-105 cursor-pointer group"
                 >
                   <div className="relative h-32 overflow-hidden bg-gradient-to-br from-red-100 to-red-200">
