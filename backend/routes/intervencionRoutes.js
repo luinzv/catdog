@@ -1,14 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const authMiddleware = require('../middleware/authMiddleware');
-const {
+import express from "express";
+import authMiddleware from "../middleware/authMiddleware.js";
+import {
   obtenerIntervenciones,
   crearIntervencion,
   eliminarIntervencion,
-} = require('../controllers/intervencionController');
+} from "../controllers/intervencionController.js";
 
-router.get('/:mascotaId', authMiddleware, obtenerIntervenciones);
-router.post('/:mascotaId', authMiddleware, crearIntervencion);
-router.delete('/:id', authMiddleware, eliminarIntervencion);
+const router = express.Router();
 
-module.exports = router;
+router.get("/:mascotaId", authMiddleware, obtenerIntervenciones);
+router.post("/:mascotaId", authMiddleware, crearIntervencion);
+router.delete("/:id", authMiddleware, eliminarIntervencion);
+
+export default router;
