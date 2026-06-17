@@ -40,8 +40,14 @@ const NAV_ITEMS: NavItem[] = [
       { label: "Alertas", href: "/alertas", icon: AlertTriangle },
     ],
   },
-  { label: "Perfil", href: "/perfil", icon: User },
-  { label: "Configuración", href: "/configuracion", icon: Settings },
+  {
+    label: "Perfil",
+    icon: User,
+    children: [
+      { label: "Mi Perfil", href: "/perfil", icon: User },
+      { label: "Configuración", href: "/configuracion", icon: Settings },
+    ],
+  },
 ];
 
 type NavAction = {
