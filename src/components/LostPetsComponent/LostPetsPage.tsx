@@ -39,6 +39,8 @@ const EMPTY_FORM = {
   lng: null as number | null,
 };
 
+const obtenerFechaHoy = () => new Date().toISOString().split("T")[0];
+
 type Sugerencia = {
   display_name: string;
   lat: string;
@@ -71,6 +73,7 @@ export default function LostPetsPage() {
   const [sugerencias, setSugerencias] = useState<Sugerencia[]>([]);
   const [buscandoDireccion, setBuscandoDireccion] = useState(false);
   const [detectandoUbicacion, setDetectandoUbicacion] = useState(false);
+  const [errorFecha, setErrorFecha] = useState("");
 
   // Guarda la ubicación del usuario para sesgar la búsqueda
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -188,6 +191,7 @@ export default function LostPetsPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (e.target.name === "fechaPerdida") setErrorFecha("");
   };
 
   const handleUbicacionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -208,8 +212,22 @@ export default function LostPetsPage() {
     setSugerencias([]);
   };
 
+  const validarFecha = (): boolean => {
+    if (!form.fechaPerdida) {
+      setErrorFecha("La fecha es obligatoria.");
+      return false;
+    }
+    if (form.fechaPerdida > obtenerFechaHoy()) {
+      setErrorFecha("La fecha no puede ser posterior a hoy.");
+      return false;
+    }
+    setErrorFecha("");
+    return true;
+  };
+
   const crearReporte = async () => {
     if (!form.nombre || !form.descripcion || !form.fechaPerdida || !form.ubicacion || !form.contacto) return;
+    if (!validarFecha()) return;
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mascotas-perdidas`, {
         method: "POST",
@@ -220,6 +238,7 @@ export default function LostPetsPage() {
       setMascotas((prev) => [data, ...prev]);
       setForm(EMPTY_FORM);
       setSugerencias([]);
+      setErrorFecha("");
       setMostrarModal(false);
     } catch (err) {
       console.error(err);
@@ -240,11 +259,13 @@ export default function LostPetsPage() {
       lng: m.lng || null,
     });
     setSugerencias([]);
+    setErrorFecha("");
     setEditarModal(true);
   };
 
   const guardarEdicion = async () => {
     if (!editarId) return;
+    if (!validarFecha()) return;
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mascotas-perdidas/${editarId}`, {
         method: "PUT",
@@ -255,6 +276,7 @@ export default function LostPetsPage() {
       setMascotas((prev) => prev.map((m) => (m._id === editarId ? data : m)));
       setEditarModal(false);
       setEditarId(null);
+      setErrorFecha("");
     } catch (err) {
       console.error(err);
     }
@@ -404,8 +426,17 @@ export default function LostPetsPage() {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-xs font-semibold text-slate-700 mb-1 block">Fecha de pérdida *</label>
-          <input name="fechaPerdida" type="date" value={form.fechaPerdida} onChange={handleChange}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-300" />
+          <input
+            name="fechaPerdida"
+            type="date"
+            value={form.fechaPerdida}
+            max={obtenerFechaHoy()}
+            onChange={handleChange}
+            className={`w-full border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-300 ${errorFecha ? "border-red-400 bg-red-50" : "border-gray-200"}`}
+          />
+          {errorFecha && (
+            <p className="text-xs text-red-500 mt-1 font-medium">{errorFecha}</p>
+          )}
         </div>
         <div>
           <label className="text-xs font-semibold text-slate-700 mb-1 block">Contacto *</label>
@@ -435,7 +466,7 @@ export default function LostPetsPage() {
         action={{
           label: "Reportar Mascota",
           icon: Plus,
-          onClick: () => { setForm(EMPTY_FORM); setSugerencias([]); setMostrarModal(true); }
+          onClick: () => { setForm(EMPTY_FORM); setSugerencias([]); setErrorFecha(""); setMostrarModal(true); }
         }}
       />
 
