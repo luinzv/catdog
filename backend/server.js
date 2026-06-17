@@ -8,36 +8,45 @@ import vacunasRoutes from "./routes/vacunasRoutes.js";
 import alergiasRoutes from "./routes/alergiasRoutes.js";
 import recordatorioRoutes from "./routes/recordatorioRoutes.js";
 import mascotaPerdidaRoutes from "./routes/mascotaPerdidaRoutes.js";
+import intervencionRoutes from "./routes/intervencionRoutes.js";
 import cors from "cors";
 import { limpiarMascotasEncontradas } from "./utils/limpiarEncontradas.js";
-import intervencionRoutes from "./routes/intervencionRoutes.js";
 
-
+dotenv.config();
 
 const app = express();
 
-limpiarMascotasEncontradas();
-setInterval(limpiarMascotasEncontradas, 24 * 60 * 60 * 1000); 
-app.use(express.json()); 
+app.use(express.json());
+
 const corsOptions = {
   origin: true,
-  credentials: false
+  credentials: false,
 };
-
 app.use(cors(corsOptions));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/mascotas", mascotasRoutes);
 app.use("/api/historial", historialRoutes);
-app.get("/", (req, res) => {
-  res.send("catdog API funcionando");
-});
 app.use("/api/recordatorios", recordatorioRoutes);
 app.use("/api/vacunas", vacunasRoutes);
 app.use("/api/alergias", alergiasRoutes);
-app.use('/api/intervenciones', intervencionRoutes);
-app.listen(process.env.PORT, () =>
-  console.log("Servidor en puerto", process.env.PORT)
-);
-
+app.use("/api/intervenciones", intervencionRoutes);
 app.use("/api/mascotas-perdidas", mascotaPerdidaRoutes);
+
+app.get("/", (req, res) => {
+  res.send("catdog API funcionando");
+});
+
+const iniciarServidor = async () => {
+  await connectDB(); // Espera a que la conexión esté lista
+
+  // Solo después de conectar ejecutamos la limpieza
+  limpiarMascotasEncontradas();
+  setInterval(limpiarMascotasEncontradas, 24 * 60 * 60 * 1000);
+
+  app.listen(process.env.PORT, () =>
+    console.log("Servidor en puerto", process.env.PORT)
+  );
+};
+
+iniciarServidor();
