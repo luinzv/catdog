@@ -12,6 +12,8 @@ type Mascota = {
   peso: number;
 };
 
+const obtenerFechaHoy = () => new Date().toISOString().split("T")[0];
+
 export default function PetReminders() {
   const [recordatorios, setRecordatorios] = useState<any[]>([]);
   const [mascotas, setMascotas] = useState<Mascota[]>([]);
@@ -23,6 +25,9 @@ export default function PetReminders() {
   const [fecha, setFecha] = useState("");
   const [tipo, setTipo] = useState("Vacuna");
   const [editarId, setEditarId] = useState<string | null>(null);
+
+  const [errorFechaCrear, setErrorFechaCrear] = useState("");
+  const [errorFechaEditar, setErrorFechaEditar] = useState("");
 
   const navigate = useNavigate();
 
@@ -72,11 +77,39 @@ export default function PetReminders() {
     setTitulo("");
     setFecha("");
     setTipo("Vacuna");
+    setErrorFechaCrear("");
     setMostrarModal(true);
+  };
+
+  const validarFechaCrear = (): boolean => {
+    if (!fecha) {
+      setErrorFechaCrear("La fecha es obligatoria.");
+      return false;
+    }
+    if (fecha < obtenerFechaHoy()) {
+      setErrorFechaCrear("No puedes elegir una fecha que ya pasó.");
+      return false;
+    }
+    setErrorFechaCrear("");
+    return true;
+  };
+
+  const validarFechaEditar = (): boolean => {
+    if (!fecha) {
+      setErrorFechaEditar("La fecha es obligatoria.");
+      return false;
+    }
+    if (fecha < obtenerFechaHoy()) {
+      setErrorFechaEditar("No puedes elegir una fecha que ya pasó.");
+      return false;
+    }
+    setErrorFechaEditar("");
+    return true;
   };
 
   const crearRecordatorio = async () => {
     if (!mascotaSeleccionada) return;
+    if (!validarFechaCrear()) return;
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
@@ -102,6 +135,7 @@ export default function PetReminders() {
       setFecha("");
       setTipo("Vacuna");
       setMascotaSeleccionada(null);
+      setErrorFechaCrear("");
       setMostrarModal(false);
     } catch (error) {
       console.error(error);
@@ -139,11 +173,13 @@ export default function PetReminders() {
     );
     setFecha(recordatorio.fecha.slice(0, 10));
     setTipo(recordatorio.tipo);
+    setErrorFechaEditar("");
     setEditarModal(true);
   };
 
   const guardarEdicion = async () => {
     if (!editarId) return;
+    if (!validarFechaEditar()) return;
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
@@ -168,6 +204,7 @@ export default function PetReminders() {
       );
       setEditarModal(false);
       setEditarId(null);
+      setErrorFechaEditar("");
     } catch (error) {
       console.error(error);
     }
@@ -336,9 +373,18 @@ export default function PetReminders() {
               <input type="text" placeholder="Título" value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
                 className="w-full border rounded-xl px-4 py-3" />
-              <input type="date" value={fecha}
-                onChange={(e) => setFecha(e.target.value)}
-                className="w-full border rounded-xl px-4 py-3" />
+              <div>
+                <input
+                  type="date"
+                  value={fecha}
+                  min={obtenerFechaHoy()}
+                  onChange={(e) => { setFecha(e.target.value); setErrorFechaEditar(""); }}
+                  className={`w-full border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-300 ${errorFechaEditar ? "border-red-400 bg-red-50" : ""}`}
+                />
+                {errorFechaEditar && (
+                  <p className="text-xs text-red-500 mt-1 font-medium">{errorFechaEditar}</p>
+                )}
+              </div>
               <select value={tipo} onChange={(e) => setTipo(e.target.value)}
                 className="w-full border rounded-xl px-4 py-3">
                 <option value="Vacuna">Vacuna</option>
@@ -347,7 +393,7 @@ export default function PetReminders() {
               </select>
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setEditarModal(false)} className="px-5 py-2 bg-gray-100 rounded-xl">Cancelar</button>
+              <button onClick={() => { setEditarModal(false); setErrorFechaEditar(""); }} className="px-5 py-2 bg-gray-100 rounded-xl">Cancelar</button>
               <button onClick={guardarEdicion} className="px-5 py-2 bg-blue-600 text-white rounded-xl">Guardar</button>
               <button onClick={() => eliminarRecordatorio(editarId!)} className="px-5 py-2 bg-red-500 text-white rounded-xl">Eliminar</button>
             </div>
@@ -367,9 +413,18 @@ export default function PetReminders() {
               <input type="text" placeholder="Título" value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
                 className="w-full border rounded-xl px-4 py-3" />
-              <input type="date" value={fecha}
-                onChange={(e) => setFecha(e.target.value)}
-                className="w-full border rounded-xl px-4 py-3" />
+              <div>
+                <input
+                  type="date"
+                  value={fecha}
+                  min={obtenerFechaHoy()}
+                  onChange={(e) => { setFecha(e.target.value); setErrorFechaCrear(""); }}
+                  className={`w-full border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-300 ${errorFechaCrear ? "border-red-400 bg-red-50" : ""}`}
+                />
+                {errorFechaCrear && (
+                  <p className="text-xs text-red-500 mt-1 font-medium">{errorFechaCrear}</p>
+                )}
+              </div>
               <select value={tipo} onChange={(e) => setTipo(e.target.value)}
                 className="w-full border rounded-xl px-4 py-3">
                 <option value="Vacuna">Vacuna</option>
@@ -378,7 +433,7 @@ export default function PetReminders() {
               </select>
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setMostrarModal(false)} className="px-5 py-2 bg-gray-100 rounded-xl">Cancelar</button>
+              <button onClick={() => { setMostrarModal(false); setErrorFechaCrear(""); }} className="px-5 py-2 bg-gray-100 rounded-xl">Cancelar</button>
               <button onClick={crearRecordatorio} className="px-5 py-2 bg-blue-600 text-white rounded-xl">Guardar</button>
             </div>
           </div>
