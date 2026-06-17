@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Search,
   Map,
+  Settings
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -40,6 +41,7 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: "Perfil", href: "/perfil", icon: User },
+  { label: "Configuración", href: "/configuracion", icon: Settings },
 ];
 
 type NavAction = {
