@@ -45,6 +45,10 @@ const mascotaSchema = new mongoose.Schema(
       ref: "Usuario",
       required: true,
     },
+    esterilizado: {
+      type: Boolean,
+      default: false,
+    }
   },
   {
     timestamps: true,

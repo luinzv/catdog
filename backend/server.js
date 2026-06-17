@@ -10,9 +10,8 @@ import recordatorioRoutes from "./routes/recordatorioRoutes.js";
 import mascotaPerdidaRoutes from "./routes/mascotaPerdidaRoutes.js";
 import cors from "cors";
 import { limpiarMascotasEncontradas } from "./utils/limpiarEncontradas.js";
+import intervencionRoutes from "./routes/intervencionRoutes.js";
 
-dotenv.config();
-connectDB();
 
 const app = express();
 
@@ -35,6 +34,7 @@ app.get("/", (req, res) => {
 app.use("/api/recordatorios", recordatorioRoutes);
 app.use("/api/vacunas", vacunasRoutes);
 app.use("/api/alergias", alergiasRoutes);
+app.use('/api/intervenciones', intervencionRoutes);
 
 app.listen(process.env.PORT, () =>
   console.log("Servidor en puerto", process.env.PORT)
