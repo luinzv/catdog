@@ -10,7 +10,7 @@ import recordatorioRoutes from "./routes/recordatorioRoutes.js";
 import mascotaPerdidaRoutes from "./routes/mascotaPerdidaRoutes.js";
 import cors from "cors";
 import { limpiarMascotasEncontradas } from "./utils/limpiarEncontradas.js";
-const intervencionRoutes = require('./routes/intervencionRoutes');
+import intervencionRoutes from "./routes/intervencionRoutes.js";
 
 
 
