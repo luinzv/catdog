@@ -12,8 +12,9 @@ import {
   Calendar,
   Search,
   Heart,
+  X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../NavbarComponent/Navbar";
 
@@ -67,11 +68,29 @@ export default function DashboardPage() {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [popupMascotaPerdida, setPopupMascotaPerdida] = useState<MascotaPerdida | null>(null);
+  const [mostrarPopupPerdida, setMostrarPopupPerdida] = useState(false);
+
+  const ultimaMascotaPerdidaIdRef = useRef<string | null>(null);
+  const popupTimerRef = useRef<number | null>(null);
+
   const token = localStorage.getItem("token");
   const headers = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
     cargarDatos();
+
+    const intervalo = window.setInterval(() => {
+      revisarNuevaMascotaPerdida();
+    }, 30000);
+
+    return () => {
+      window.clearInterval(intervalo);
+
+      if (popupTimerRef.current) {
+        window.clearTimeout(popupTimerRef.current);
+      }
+    };
   }, []);
 
   const cargarDatos = async () => {
@@ -91,17 +110,21 @@ export default function DashboardPage() {
       const listaRecordatorios: Recordatorio[] = Array.isArray(recordatoriosData) ? recordatoriosData : [];
       const listaPerdidas: MascotaPerdida[] = Array.isArray(perdidasData) ? perdidasData : [];
 
-      setMascotas(listaMascotas);
-      setMascotasPerdidas(listaPerdidas.filter((m) => m.estado === "Perdida").slice(0, 3));
+      const perdidasActivas = listaPerdidas.filter((m) => m.estado === "Perdida");
 
-      // Ordenar recordatorios por fecha y tomar los próximos pendientes
+      setMascotas(listaMascotas);
+      setMascotasPerdidas(perdidasActivas.slice(0, 3));
+
+      if (!ultimaMascotaPerdidaIdRef.current && perdidasActivas.length > 0) {
+        ultimaMascotaPerdidaIdRef.current = perdidasActivas[0]._id;
+      }
+
       const pendientes = listaRecordatorios
         .filter((r) => r.estado === "Pendiente")
         .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
         .slice(0, 5);
       setRecordatorios(pendientes);
 
-      // Generar alertas desde recordatorios
       const hoy = new Date();
       hoy.setHours(0, 0, 0, 0);
       const nuevasAlertas: Alerta[] = [];
@@ -145,6 +168,60 @@ export default function DashboardPage() {
     }
   };
 
+  const revisarNuevaMascotaPerdida = async () => {
+    try {
+      const perdidasRes = await fetch(`${import.meta.env.VITE_API_URL}/api/mascotas-perdidas`, { headers });
+      const perdidasData = await perdidasRes.json();
+
+      const listaPerdidas: MascotaPerdida[] = Array.isArray(perdidasData) ? perdidasData : [];
+      const perdidasActivas = listaPerdidas.filter((m) => m.estado === "Perdida");
+
+      setMascotasPerdidas(perdidasActivas.slice(0, 3));
+
+      const mascotaMasReciente = perdidasActivas[0];
+
+      if (!mascotaMasReciente) return;
+
+      if (!ultimaMascotaPerdidaIdRef.current) {
+        ultimaMascotaPerdidaIdRef.current = mascotaMasReciente._id;
+        return;
+      }
+
+      if (mascotaMasReciente._id !== ultimaMascotaPerdidaIdRef.current) {
+        ultimaMascotaPerdidaIdRef.current = mascotaMasReciente._id;
+        mostrarPopupNuevaMascotaPerdida(mascotaMasReciente);
+      }
+    } catch (err) {
+      console.error("Error revisando nuevas mascotas perdidas:", err);
+    }
+  };
+
+  const mostrarPopupNuevaMascotaPerdida = (mascota: MascotaPerdida) => {
+    setPopupMascotaPerdida(mascota);
+    setMostrarPopupPerdida(true);
+
+    if (popupTimerRef.current) {
+      window.clearTimeout(popupTimerRef.current);
+    }
+
+    popupTimerRef.current = window.setTimeout(() => {
+      setMostrarPopupPerdida(false);
+    }, 7000);
+  };
+
+  const cerrarPopupMascotaPerdida = () => {
+    setMostrarPopupPerdida(false);
+
+    if (popupTimerRef.current) {
+      window.clearTimeout(popupTimerRef.current);
+    }
+  };
+
+  const irAMascotasPerdidas = () => {
+    cerrarPopupMascotaPerdida();
+    navigate("/perdidos");
+  };
+
   const saludables = mascotas.filter((m) => m.estadoSalud === "Excelente").length;
   const enTratamiento = mascotas.filter((m) => m.estadoSalud === "En tratamiento").length;
   const pendientesCount = recordatorios.length;
@@ -179,6 +256,81 @@ export default function DashboardPage() {
 
       {/* HEADER */}
       <Navbar title="Dashboard" />
+
+      {/* POPUP MASCOTA PERDIDA */}
+      {mostrarPopupPerdida && popupMascotaPerdida && (
+        <div className="fixed bottom-6 right-6 z-[9999] w-[calc(100%-2rem)] max-w-sm">
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-cyan-500 px-5 py-4 text-white">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <Search className="w-6 h-6" />
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-semibold text-blue-100">
+                      Nueva publicación
+                    </p>
+                    <h3 className="text-base font-bold leading-tight">
+                      Mascota perdida
+                    </h3>
+                  </div>
+                </div>
+
+                <button
+                  onClick={cerrarPopupMascotaPerdida}
+                  className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 transition flex items-center justify-center"
+                  aria-label="Cerrar popup"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={irAMascotasPerdidas}
+              className="w-full text-left p-4 hover:bg-blue-50 transition"
+            >
+              <div className="flex gap-4">
+                <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-100 to-red-100 shrink-0">
+                  <img
+                    src={popupMascotaPerdida.imagen || "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=300&h=300&fit=crop"}
+                    alt={popupMascotaPerdida.nombre}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    Perdida
+                  </div>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-lg font-bold text-slate-900 truncate">
+                    {popupMascotaPerdida.nombre}
+                  </h4>
+
+                  <p className="text-sm text-slate-500 truncate">
+                    {popupMascotaPerdida.tipo}
+                  </p>
+
+                  <div className="flex items-center gap-1 mt-2 text-sm text-slate-500">
+                    <MapPin className="w-4 h-4 shrink-0 text-red-400" />
+                    <span className="truncate">{popupMascotaPerdida.ubicacion}</span>
+                  </div>
+
+                  <p className="text-xs text-blue-600 font-semibold mt-2">
+                    Ver mascotas perdidas
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <div className="h-1.5 bg-slate-100">
+              <div className="h-full bg-gradient-to-r from-blue-600 to-cyan-500 rounded-r-full"></div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
