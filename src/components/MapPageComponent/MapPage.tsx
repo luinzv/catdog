@@ -445,9 +445,9 @@ export default function MapPage() {
                           
                           <a
                             href="/mascotas-perdidas"
-                            className="mt-2 block text-center text-xs bg-blue-600 text-yellow-300 py-1.5 rounded-lg font-semibold"
+                            className="mt-2 block text-center text-xs bg-blue-600 py-1.5 rounded-lg font-semibold"
                           >
-                            Ver reporte
+                            <span className="text-white">Ver reporte</span>
                           </a>
                         </div>
                       </Popup>
