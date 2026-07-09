@@ -4,6 +4,11 @@ import {
   ArrowLeft,
   Search,
   CheckCheck,
+  MapPin,
+  Paperclip,
+  Navigation,
+  X,
+  Loader2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -16,6 +21,12 @@ type Usuario = {
   imagen?: string;
 };
 
+type Ubicacion = {
+  lat: number;
+  lng: number;
+  direccion?: string;
+};
+
 type Mensaje = {
   _id: string;
   emisor: string;
@@ -23,11 +34,18 @@ type Mensaje = {
   contenido: string;
   leido: boolean;
   createdAt: string;
+  tipo?: "texto" | "ubicacion";
+  ubicacion?: Ubicacion;
 };
 
 type Conversacion = {
   amigo: Usuario;
-  ultimoMensaje: { contenido: string; createdAt: string; esMio: boolean } | null;
+  ultimoMensaje: {
+    contenido: string;
+    createdAt: string;
+    esMio: boolean;
+    tipo?: "texto" | "ubicacion";
+  } | null;
   noLeidos: number;
 };
 
@@ -55,6 +73,11 @@ export default function ChatPage() {
   const [nuevoMensaje, setNuevoMensaje] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
+
+  // ── Compartir ubicación ──
+  const [menuAdjuntoAbierto, setMenuAdjuntoAbierto] = useState(false);
+  const [obteniendoUbicacion, setObteniendoUbicacion] = useState(false);
+  const [errorUbicacion, setErrorUbicacion] = useState("");
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -122,6 +145,14 @@ export default function ChatPage() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [mensajes]);
 
+  // Cerrar el menú de "adjuntar" al hacer click fuera de él
+  useEffect(() => {
+    if (!menuAdjuntoAbierto) return;
+    const handler = () => setMenuAdjuntoAbierto(false);
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, [menuAdjuntoAbierto]);
+
   // ── Enviar mensaje ───────────────────────────────────
 
   const handleEnviar = async (e: React.FormEvent) => {
@@ -147,6 +178,60 @@ export default function ChatPage() {
       setError(err.message || "Error al enviar el mensaje");
     } finally {
       setEnviando(false);
+    }
+  };
+
+  // ── Compartir ubicación actual ───────────────────────
+
+  const compartirUbicacionActual = () => {
+    if (!conversacionActiva) return;
+    setMenuAdjuntoAbierto(false);
+    setErrorUbicacion("");
+
+    if (!("geolocation" in navigator)) {
+      setErrorUbicacion("Tu dispositivo/navegador no soporta geolocalización.");
+      return;
+    }
+
+    setObteniendoUbicacion(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        await enviarUbicacion(latitude, longitude);
+      },
+      (geoError) => {
+        setObteniendoUbicacion(false);
+        if (geoError.code === geoError.PERMISSION_DENIED) {
+          setErrorUbicacion(
+            "Permiso de ubicación denegado. Actívalo en la configuración de tu navegador/dispositivo."
+          );
+        } else {
+          setErrorUbicacion("No se pudo obtener tu ubicación. Intenta nuevamente.");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  const enviarUbicacion = async (lat: number, lng: number, direccion?: string) => {
+    if (!conversacionActiva) return;
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/mensajes/${conversacionActiva._id}/ubicacion`,
+        {
+          method: "POST",
+          headers: headers(),
+          body: JSON.stringify({ lat, lng, direccion }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Error al compartir la ubicación");
+      setMensajes((prev) => [...prev, data]);
+      cargarConversaciones();
+    } catch (err: any) {
+      setErrorUbicacion(err.message || "Error al compartir la ubicación");
+    } finally {
+      setObteniendoUbicacion(false);
     }
   };
 
@@ -240,9 +325,16 @@ export default function ChatPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-slate-500 truncate">
+                      <p className="text-sm text-slate-500 truncate flex items-center gap-1">
+                        {c.ultimoMensaje?.tipo === "ubicacion" && (
+                          <MapPin className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                        )}
                         {c.ultimoMensaje
-                          ? `${c.ultimoMensaje.esMio ? "Tú: " : ""}${c.ultimoMensaje.contenido}`
+                          ? `${c.ultimoMensaje.esMio ? "Tú: " : ""}${
+                              c.ultimoMensaje.tipo === "ubicacion"
+                                ? "Ubicación compartida"
+                                : c.ultimoMensaje.contenido
+                            }`
                           : "Inicia la conversación"}
                       </p>
                     </div>
@@ -305,6 +397,65 @@ export default function ChatPage() {
                   ) : (
                     mensajes.map((m) => {
                       const esMio = m.emisor === userId;
+                      const esUbicacion = m.tipo === "ubicacion" && m.ubicacion;
+
+                      if (esUbicacion) {
+                        const { lat, lng, direccion } = m.ubicacion!;
+                        const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                        const staticMapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=15&size=300x150&markers=${lat},${lng},red-pushpin`;
+                        return (
+                          <div key={m._id} className={`flex ${esMio ? "justify-end" : "justify-start"}`}>
+                            <a
+                              href={mapsUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`max-w-[75%] sm:max-w-[60%] rounded-2xl overflow-hidden border block hover:opacity-90 transition ${
+                                esMio
+                                  ? "border-blue-200 rounded-br-md"
+                                  : "border-slate-200 rounded-bl-md"
+                              }`}
+                            >
+                              <div className="relative bg-slate-100">
+                                <img
+                                  src={staticMapUrl}
+                                  alt="Ubicación compartida"
+                                  className="w-full h-32 object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = "none";
+                                  }}
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                  <MapPin className="w-8 h-8 text-red-500 drop-shadow" fill="currentColor" />
+                                </div>
+                              </div>
+                              <div
+                                className={`px-3 py-2 text-sm ${
+                                  esMio
+                                    ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
+                                    : "bg-slate-100 text-slate-800"
+                                }`}
+                              >
+                                <p className="font-semibold flex items-center gap-1.5">
+                                  <MapPin className="w-3.5 h-3.5 shrink-0" />
+                                  Ubicación compartida
+                                </p>
+                                {direccion && (
+                                  <p className="text-xs opacity-90 mt-0.5 break-words">{direccion}</p>
+                                )}
+                                <div
+                                  className={`flex items-center gap-1 mt-1 text-[11px] ${
+                                    esMio ? "text-white/70 justify-end" : "text-slate-400"
+                                  }`}
+                                >
+                                  {formatearHora(m.createdAt)}
+                                  {esMio && <CheckCheck className="w-3 h-3" />}
+                                </div>
+                              </div>
+                            </a>
+                          </div>
+                        );
+                      }
+
                       return (
                         <div key={m._id} className={`flex ${esMio ? "justify-end" : "justify-start"}`}>
                           <div
@@ -330,8 +481,51 @@ export default function ChatPage() {
                   )}
                 </div>
 
+                {/* AVISO ERROR UBICACIÓN */}
+                {errorUbicacion && (
+                  <div className="mx-4 mb-2 flex items-start gap-2 bg-red-50 border border-red-100 text-red-500 text-xs rounded-xl p-3">
+                    <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
+                    <p className="flex-1">{errorUbicacion}</p>
+                    <button onClick={() => setErrorUbicacion("")} className="shrink-0">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
                 {/* INPUT ENVIAR */}
-                <form onSubmit={handleEnviar} className="p-4 border-t border-slate-100 flex gap-2 shrink-0">
+                <form onSubmit={handleEnviar} className="p-4 border-t border-slate-100 flex gap-2 shrink-0 relative">
+                  {/* Menú adjuntar (compartir ubicación) */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setMenuAdjuntoAbierto((v) => !v)}
+                      disabled={!!error || obteniendoUbicacion}
+                      title="Compartir ubicación"
+                      className="w-11 h-11 shrink-0 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-500 transition disabled:opacity-50"
+                    >
+                      {obteniendoUbicacion ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <Paperclip className="w-5 h-5" />
+                      )}
+                    </button>
+
+                    {menuAdjuntoAbierto && (
+                      <div className="absolute bottom-full left-0 mb-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-10">
+                        <button
+                          type="button"
+                          onClick={compartirUbicacionActual}
+                          className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-blue-50 transition"
+                        >
+                          <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                            <Navigation className="w-4 h-4 text-red-500" />
+                          </div>
+                          Compartir mi ubicación actual
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   <input
                     type="text"
                     value={nuevoMensaje}

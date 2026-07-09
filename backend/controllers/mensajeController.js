@@ -53,6 +53,7 @@ export const obtenerConversaciones = async (req, res) => {
                 contenido: ultimoMensaje.contenido,
                 createdAt: ultimoMensaje.createdAt,
                 esMio: ultimoMensaje.emisor.toString() === userId,
+                tipo: ultimoMensaje.tipo,
               }
             : null,
           noLeidos,
@@ -105,7 +106,7 @@ export const obtenerMensajes = async (req, res) => {
   }
 };
 
-// POST /api/mensajes/:amigoId  → enviar mensaje
+// POST /api/mensajes/:amigoId  → enviar mensaje de texto
 export const enviarMensaje = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -116,6 +117,7 @@ export const enviarMensaje = async (req, res) => {
       return res.status(400).json({ msg: "El mensaje no puede estar vacío" });
     }
 
+    // Impide compartir/enviar mensajes a usuarios no autorizados (no amigos)
     const esAmigo = await sonAmigos(userId, amigoId);
     if (!esAmigo) {
       return res.status(403).json({ msg: "Solo puedes enviar mensajes a tus amistades" });
@@ -125,6 +127,7 @@ export const enviarMensaje = async (req, res) => {
       emisor: userId,
       receptor: amigoId,
       contenido: contenido.trim(),
+      tipo: "texto",
     });
 
     const guardado = await nuevoMensaje.save();
@@ -132,5 +135,42 @@ export const enviarMensaje = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error al enviar el mensaje" });
+  }
+};
+
+// POST /api/mensajes/:amigoId/ubicacion  → compartir ubicación como mensaje especial
+export const enviarUbicacion = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { amigoId } = req.params;
+    const { lat, lng, direccion } = req.body;
+
+    if (typeof lat !== "number" || typeof lng !== "number") {
+      return res.status(400).json({ msg: "Coordenadas de ubicación inválidas" });
+    }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return res.status(400).json({ msg: "Coordenadas de ubicación fuera de rango" });
+    }
+
+    // Regla de negocio: solo se puede compartir ubicación con amistades aceptadas
+    // (impide compartir ubicación con usuarios no autorizados)
+    const esAmigo = await sonAmigos(userId, amigoId);
+    if (!esAmigo) {
+      return res.status(403).json({ msg: "Solo puedes compartir tu ubicación con tus amistades" });
+    }
+
+    const nuevoMensaje = new Mensaje({
+      emisor: userId,
+      receptor: amigoId,
+      contenido: direccion?.trim() || "Ubicación compartida",
+      tipo: "ubicacion",
+      ubicacion: { lat, lng, direccion: direccion?.trim() || "" },
+    });
+
+    const guardado = await nuevoMensaje.save();
+    res.status(201).json(guardado);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error al compartir la ubicación" });
   }
 };

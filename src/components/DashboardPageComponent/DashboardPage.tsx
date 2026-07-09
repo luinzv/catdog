@@ -13,6 +13,8 @@ import {
   Search,
   Heart,
   X,
+  MessageCircle,
+  Users,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -67,6 +69,7 @@ export default function DashboardPage() {
   const [mascotasPerdidas, setMascotasPerdidas] = useState<MascotaPerdida[]>([]);
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0);
 
   const [popupMascotaPerdida, setPopupMascotaPerdida] = useState<MascotaPerdida | null>(null);
   const [mostrarPopupPerdida, setMostrarPopupPerdida] = useState(false);
@@ -96,15 +99,25 @@ export default function DashboardPage() {
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      const [mascotasRes, recordatoriosRes, perdidasRes] = await Promise.all([
+      const [mascotasRes, recordatoriosRes, perdidasRes, conversacionesRes] = await Promise.all([
         fetch(`${import.meta.env.VITE_API_URL}/api/mascotas`, { headers }),
         fetch(`${import.meta.env.VITE_API_URL}/api/recordatorios`, { headers }),
         fetch(`${import.meta.env.VITE_API_URL}/api/mascotas-perdidas`, { headers }),
+        fetch(`${import.meta.env.VITE_API_URL}/api/mensajes/conversaciones`, { headers }),
       ]);
 
       const mascotasData = await mascotasRes.json();
       const recordatoriosData = await recordatoriosRes.json();
       const perdidasData = await perdidasRes.json();
+      const conversacionesData = await conversacionesRes.json();
+
+      if (Array.isArray(conversacionesData)) {
+        const totalNoLeidos = conversacionesData.reduce(
+          (acc: number, c: any) => acc + (c.noLeidos || 0),
+          0
+        );
+        setMensajesNoLeidos(totalNoLeidos);
+      }
 
       const listaMascotas: Mascota[] = mascotasData.mascotas || [];
       const listaRecordatorios: Recordatorio[] = Array.isArray(recordatoriosData) ? recordatoriosData : [];
@@ -240,6 +253,9 @@ export default function DashboardPage() {
     { label: "Alertas", icon: AlertTriangle, href: "/alertas", color: "bg-red-100 text-red-600", hover: "hover:bg-red-200" },
     { label: "Perdidos", icon: Search, href: "/perdidos", color: "bg-orange-100 text-orange-600", hover: "hover:bg-orange-200" },
     { label: "Mapa", icon: MapPin, href: "/mapa", color: "bg-cyan-100 text-cyan-600", hover: "hover:bg-cyan-200" },
+    { label: "Mensajes", icon: MessageCircle, href: "/mensajes", color: "bg-indigo-100 text-indigo-600", hover: "hover:bg-indigo-200", badge: mensajesNoLeidos },
+    { label: "Grupos", icon: Users, href: "/grupos", color: "bg-pink-100 text-pink-600", hover: "hover:bg-pink-200" },
+    { label: "Amistades", icon: Users, href: "/amigos", color: "bg-teal-100 text-teal-600", hover: "hover:bg-teal-200" },
     { label: "Mi Perfil", icon: User, href: "/perfil", color: "bg-emerald-100 text-emerald-600", hover: "hover:bg-emerald-200" },
   ];
 
@@ -409,10 +425,15 @@ export default function DashboardPage() {
               <button
                 key={item.href}
                 onClick={() => navigate(item.href)}
-                className={`bg-white rounded-2xl p-4 shadow-sm border border-slate-100 hover:shadow-md transition-all hover:scale-105 flex flex-col items-center gap-2`}
+                className={`relative bg-white rounded-2xl p-4 shadow-sm border border-slate-100 hover:shadow-md transition-all hover:scale-105 flex flex-col items-center gap-2`}
               >
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${item.color} ${item.hover} transition`}>
+                <div className={`relative w-12 h-12 rounded-2xl flex items-center justify-center ${item.color} ${item.hover} transition`}>
                   <item.icon className="w-6 h-6" />
+                  {"badge" in item && !!item.badge && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white">
+                      {item.badge > 9 ? "9+" : item.badge}
+                    </span>
+                  )}
                 </div>
                 <span className="text-xs font-semibold text-slate-700 text-center">{item.label}</span>
               </button>

@@ -9,7 +9,9 @@ import {
   LayoutDashboard,
   Search,
   Map,
-  Settings
+  Settings,
+  MessageCircle,
+  Users,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -41,6 +43,15 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
+    label: "Comunidad",
+    icon: Users,
+    children: [
+      { label: "Amistades", href: "/amigos", icon: Users },
+      { label: "Grupos de Búsqueda", href: "/grupos", icon: Search },
+      { label: "Mensajes", href: "/mensajes", icon: MessageCircle },
+    ],
+  },
+  {
     label: "Perfil",
     icon: User,
     children: [
@@ -61,6 +72,7 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
   const location = useLocation();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [dropdownAbierto, setDropdownAbierto] = useState<string | null>(null);
+  const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -71,6 +83,31 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Contador de mensajes no leídos para el badge de "Mensajes"
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const cargarNoLeidos = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mensajes/conversaciones`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          const total = data.reduce((acc: number, c: any) => acc + (c.noLeidos || 0), 0);
+          setMensajesNoLeidos(total);
+        }
+      } catch {
+        // silencioso
+      }
+    };
+
+    cargarNoLeidos();
+    const interval = setInterval(cargarNoLeidos, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -124,7 +161,7 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
                         onClick={() =>
                           setDropdownAbierto(dropdownAbierto === item.label ? null : item.label)
                         }
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                        className={`relative flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                           isActive(item)
                             ? "bg-blue-600 text-white shadow-md shadow-blue-200"
                             : "text-slate-600 hover:bg-slate-100"
@@ -137,6 +174,11 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
                             dropdownAbierto === item.label ? "rotate-180" : ""
                           }`}
                         />
+                        {item.label === "Comunidad" && mensajesNoLeidos > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4.5 h-4.5 min-w-[18px] px-1 flex items-center justify-center">
+                            {mensajesNoLeidos > 9 ? "9+" : mensajesNoLeidos}
+                          </span>
+                        )}
                       </button>
 
                       {dropdownAbierto === item.label && (
@@ -145,14 +187,21 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
                             <button
                               key={child.href}
                               onClick={() => { navigate(child.href); setDropdownAbierto(null); }}
-                              className={`w-full flex items-center gap-2.5 px-4 py-3 text-sm transition hover:bg-blue-50 ${
+                              className={`w-full flex items-center justify-between gap-2.5 px-4 py-3 text-sm transition hover:bg-blue-50 ${
                                 isChildActive(child.href)
                                   ? "bg-blue-50 text-blue-600 font-semibold"
                                   : "text-slate-600 font-medium"
                               }`}
                             >
-                              <child.icon className="w-4 h-4 shrink-0" />
-                              {child.label}
+                              <span className="flex items-center gap-2.5">
+                                <child.icon className="w-4 h-4 shrink-0" />
+                                {child.label}
+                              </span>
+                              {child.label === "Mensajes" && mensajesNoLeidos > 0 && (
+                                <span className="bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                                  {mensajesNoLeidos > 9 ? "9+" : mensajesNoLeidos}
+                                </span>
+                              )}
                             </button>
                           ))}
                         </div>
@@ -231,14 +280,21 @@ export default function Navbar({ title, action }: { title: string; action?: NavA
                         <button
                           key={child.href}
                           onClick={() => navigate(child.href)}
-                          className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition ${
+                          className={`w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition ${
                             isChildActive(child.href)
                               ? "bg-blue-50 text-blue-600 font-semibold"
                               : "text-slate-600 hover:bg-slate-100"
                           }`}
                         >
-                          <child.icon className="w-4 h-4 shrink-0" />
-                          {child.label}
+                          <span className="flex items-center gap-3">
+                            <child.icon className="w-4 h-4 shrink-0" />
+                            {child.label}
+                          </span>
+                          {child.label === "Mensajes" && mensajesNoLeidos > 0 && (
+                            <span className="bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                              {mensajesNoLeidos > 9 ? "9+" : mensajesNoLeidos}
+                            </span>
+                          )}
                         </button>
                       ))}
                     </div>
