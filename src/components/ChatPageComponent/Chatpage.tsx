@@ -5,8 +5,6 @@ import {
   Search,
   CheckCheck,
   MapPin,
-  Paperclip,
-  Navigation,
   X,
   Loader2,
 } from "lucide-react";
@@ -75,7 +73,6 @@ export default function ChatPage() {
   const [error, setError] = useState("");
 
   // ── Compartir ubicación ──
-  const [menuAdjuntoAbierto, setMenuAdjuntoAbierto] = useState(false);
   const [obteniendoUbicacion, setObteniendoUbicacion] = useState(false);
   const [errorUbicacion, setErrorUbicacion] = useState("");
 
@@ -145,14 +142,6 @@ export default function ChatPage() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [mensajes]);
 
-  // Cerrar el menú de "adjuntar" al hacer click fuera de él
-  useEffect(() => {
-    if (!menuAdjuntoAbierto) return;
-    const handler = () => setMenuAdjuntoAbierto(false);
-    document.addEventListener("click", handler);
-    return () => document.removeEventListener("click", handler);
-  }, [menuAdjuntoAbierto]);
-
   // ── Enviar mensaje ───────────────────────────────────
 
   const handleEnviar = async (e: React.FormEvent) => {
@@ -185,7 +174,6 @@ export default function ChatPage() {
 
   const compartirUbicacionActual = () => {
     if (!conversacionActiva) return;
-    setMenuAdjuntoAbierto(false);
     setErrorUbicacion("");
 
     if (!("geolocation" in navigator)) {
@@ -494,37 +482,20 @@ export default function ChatPage() {
 
                 {/* INPUT ENVIAR */}
                 <form onSubmit={handleEnviar} className="p-4 border-t border-slate-100 flex gap-2 shrink-0 relative">
-                  {/* Menú adjuntar (compartir ubicación) */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setMenuAdjuntoAbierto((v) => !v)}
-                      disabled={!!error || obteniendoUbicacion}
-                      title="Compartir ubicación"
-                      className="w-11 h-11 shrink-0 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-500 transition disabled:opacity-50"
-                    >
-                      {obteniendoUbicacion ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <Paperclip className="w-5 h-5" />
-                      )}
-                    </button>
-
-                    {menuAdjuntoAbierto && (
-                      <div className="absolute bottom-full left-0 mb-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-10">
-                        <button
-                          type="button"
-                          onClick={compartirUbicacionActual}
-                          className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-blue-50 transition"
-                        >
-                          <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                            <Navigation className="w-4 h-4 text-red-500" />
-                          </div>
-                          Compartir mi ubicación actual
-                        </button>
-                      </div>
+                  {/* Botón compartir ubicación (acción directa) */}
+                  <button
+                    type="button"
+                    onClick={compartirUbicacionActual}
+                    disabled={!!error || obteniendoUbicacion}
+                    title="Compartir mi ubicación actual"
+                    className="w-11 h-11 shrink-0 rounded-xl border border-slate-200 hover:bg-red-50 hover:border-red-200 hover:text-red-500 flex items-center justify-center text-slate-500 transition disabled:opacity-50"
+                  >
+                    {obteniendoUbicacion ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <MapPin className="w-5 h-5" />
                     )}
-                  </div>
+                  </button>
 
                   <input
                     type="text"

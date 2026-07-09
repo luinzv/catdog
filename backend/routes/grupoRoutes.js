@@ -10,6 +10,7 @@ import {
   cerrarGrupo,
   obtenerAvisos,
   crearAviso,
+  crearAvisoUbicacion,
 } from "../controllers/grupoController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
@@ -28,5 +29,6 @@ router.put("/:id/cerrar", cerrarGrupo);
 
 router.get("/:id/avisos", obtenerAvisos);
 router.post("/:id/avisos", crearAviso);
+router.post("/:id/avisos/ubicacion", crearAvisoUbicacion);
 
 export default router;

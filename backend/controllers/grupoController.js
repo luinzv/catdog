@@ -297,6 +297,7 @@ export const crearAviso = async (req, res) => {
       grupo: req.params.id,
       autor: req.user.id,
       contenido: contenido.trim(),
+      tipo: "texto",
     });
 
     const guardado = await nuevoAviso.save();
@@ -306,5 +307,47 @@ export const crearAviso = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error al crear el aviso" });
+  }
+};
+
+// POST /api/grupos/:id/avisos/ubicacion  → compartir ubicación en el grupo (solo miembros, grupo activo)
+export const crearAvisoUbicacion = async (req, res) => {
+  try {
+    const { lat, lng, direccion } = req.body;
+
+    if (typeof lat !== "number" || typeof lng !== "number") {
+      return res.status(400).json({ msg: "Coordenadas de ubicación inválidas" });
+    }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return res.status(400).json({ msg: "Coordenadas de ubicación fuera de rango" });
+    }
+
+    const grupo = await Grupo.findById(req.params.id);
+    if (!grupo) return res.status(404).json({ msg: "Grupo no encontrado" });
+
+    // Impide compartir ubicación con usuarios no autorizados: solo miembros del grupo
+    if (!esMiembro(grupo, req.user.id)) {
+      return res.status(403).json({ msg: "No perteneces a este grupo" });
+    }
+
+    if (grupo.estado === "Cerrado") {
+      return res.status(400).json({ msg: "Este grupo está cerrado" });
+    }
+
+    const nuevoAviso = new AvisoGrupo({
+      grupo: req.params.id,
+      autor: req.user.id,
+      contenido: direccion?.trim() || "Ubicación compartida",
+      tipo: "ubicacion",
+      ubicacion: { lat, lng, direccion: direccion?.trim() || "" },
+    });
+
+    const guardado = await nuevoAviso.save();
+    const populado = await AvisoGrupo.findById(guardado._id).populate("autor", "nombre email imagen");
+
+    res.status(201).json(populado);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error al compartir la ubicación en el grupo" });
   }
 };

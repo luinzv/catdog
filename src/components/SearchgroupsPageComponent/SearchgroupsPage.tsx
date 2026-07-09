@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   MoreVertical,
   Trash2,
+  Loader2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Navbar from "../NavbarComponent/Navbar";
@@ -49,11 +50,19 @@ type Grupo = {
   createdAt: string;
 };
 
+type Ubicacion = {
+  lat: number;
+  lng: number;
+  direccion?: string;
+};
+
 type Aviso = {
   _id: string;
   autor: Usuario;
   contenido: string;
   createdAt: string;
+  tipo?: "texto" | "ubicacion";
+  ubicacion?: Ubicacion;
 };
 
 type Amistad = {
@@ -86,6 +95,10 @@ export default function SearchGroupsPage() {
   const [loadingAvisos, setLoadingAvisos] = useState(false);
   const [nuevoAviso, setNuevoAviso] = useState("");
   const [enviandoAviso, setEnviandoAviso] = useState(false);
+
+  // ── Compartir ubicación en el grupo ──
+  const [obteniendoUbicacionGrupo, setObteniendoUbicacionGrupo] = useState(false);
+  const [errorUbicacionGrupo, setErrorUbicacionGrupo] = useState("");
 
   const [showModalCrear, setShowModalCrear] = useState(false);
   const [nombreGrupo, setNombreGrupo] = useState("");
@@ -337,6 +350,53 @@ export default function SearchGroupsPage() {
     }
   };
 
+  // ── Compartir ubicación actual en el grupo ───────────
+
+  const compartirUbicacionGrupo = () => {
+    if (!grupoActivo) return;
+    setErrorUbicacionGrupo("");
+
+    if (!("geolocation" in navigator)) {
+      setErrorUbicacionGrupo("Tu dispositivo/navegador no soporta geolocalización.");
+      return;
+    }
+
+    setObteniendoUbicacionGrupo(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_API_URL}/api/grupos/${grupoActivo._id}/avisos/ubicacion`,
+            {
+              method: "POST",
+              headers: headers(),
+              body: JSON.stringify({ lat: latitude, lng: longitude }),
+            }
+          );
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.msg || "Error al compartir la ubicación");
+          setAvisos((prev) => [...prev, data]);
+        } catch (err: any) {
+          setErrorUbicacionGrupo(err.message || "Error al compartir la ubicación");
+        } finally {
+          setObteniendoUbicacionGrupo(false);
+        }
+      },
+      (geoError) => {
+        setObteniendoUbicacionGrupo(false);
+        if (geoError.code === geoError.PERMISSION_DENIED) {
+          setErrorUbicacionGrupo(
+            "Permiso de ubicación denegado. Actívalo en la configuración de tu navegador/dispositivo."
+          );
+        } else {
+          setErrorUbicacionGrupo("No se pudo obtener tu ubicación. Intenta nuevamente.");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
   const gruposFiltrados = grupos.filter((g) =>
     g.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
@@ -565,6 +625,61 @@ export default function SearchGroupsPage() {
                   ) : (
                     avisos.map((a) => {
                       const esMio = a.autor._id === userId;
+                      const esUbicacion = a.tipo === "ubicacion" && a.ubicacion;
+
+                      if (esUbicacion) {
+                        const { lat, lng, direccion } = a.ubicacion!;
+                        const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                        const staticMapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=15&size=300x150&markers=${lat},${lng},red-pushpin`;
+                        return (
+                          <div key={a._id} className={`flex ${esMio ? "justify-end" : "justify-start"}`}>
+                            <div className={`max-w-[80%] sm:max-w-[65%] ${esMio ? "items-end" : "items-start"} flex flex-col`}>
+                              {!esMio && (
+                                <p className="text-xs font-semibold text-slate-500 mb-1 ml-1">{a.autor.nombre}</p>
+                              )}
+                              <a
+                                href={mapsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`rounded-2xl overflow-hidden border block hover:opacity-90 transition ${
+                                  esMio ? "border-blue-200 rounded-br-md" : "border-slate-200 rounded-bl-md"
+                                }`}
+                              >
+                                <div className="relative bg-slate-100">
+                                  <img
+                                    src={staticMapUrl}
+                                    alt="Ubicación compartida"
+                                    className="w-full h-32 object-cover"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = "none";
+                                    }}
+                                  />
+                                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <MapPin className="w-8 h-8 text-red-500 drop-shadow" fill="currentColor" />
+                                  </div>
+                                </div>
+                                <div
+                                  className={`px-3 py-2 text-sm ${
+                                    esMio
+                                      ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
+                                      : "bg-slate-100 text-slate-800"
+                                  }`}
+                                >
+                                  <p className="font-semibold flex items-center gap-1.5">
+                                    <MapPin className="w-3.5 h-3.5 shrink-0" />
+                                    Ubicación compartida
+                                  </p>
+                                  {direccion && (
+                                    <p className="text-xs opacity-90 mt-0.5 break-words">{direccion}</p>
+                                  )}
+                                </div>
+                              </a>
+                              <span className="text-[11px] text-slate-400 mt-1 mx-1">{formatearFecha(a.createdAt)}</span>
+                            </div>
+                          </div>
+                        );
+                      }
+
                       return (
                         <div key={a._id} className={`flex ${esMio ? "justify-end" : "justify-start"}`}>
                           <div className={`max-w-[80%] sm:max-w-[65%] ${esMio ? "items-end" : "items-start"} flex flex-col`}>
@@ -588,9 +703,33 @@ export default function SearchGroupsPage() {
                   )}
                 </div>
 
+                {/* AVISO ERROR UBICACIÓN */}
+                {errorUbicacionGrupo && (
+                  <div className="mx-4 mb-2 flex items-start gap-2 bg-red-50 border border-red-100 text-red-500 text-xs rounded-xl p-3">
+                    <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
+                    <p className="flex-1">{errorUbicacionGrupo}</p>
+                    <button onClick={() => setErrorUbicacionGrupo("")} className="shrink-0">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
                 {/* INPUT AVISO */}
                 {grupoActivo.estado === "Activo" ? (
                   <form onSubmit={handleEnviarAviso} className="p-4 border-t border-slate-100 flex gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={compartirUbicacionGrupo}
+                      disabled={obteniendoUbicacionGrupo}
+                      title="Compartir mi ubicación actual"
+                      className="w-11 h-11 shrink-0 rounded-xl border border-slate-200 hover:bg-red-50 hover:border-red-200 hover:text-red-500 flex items-center justify-center text-slate-500 transition disabled:opacity-50"
+                    >
+                      {obteniendoUbicacionGrupo ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <MapPin className="w-5 h-5" />
+                      )}
+                    </button>
                     <input
                       type="text"
                       value={nuevoAviso}
