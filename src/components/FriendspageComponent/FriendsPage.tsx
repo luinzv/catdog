@@ -9,8 +9,10 @@ import {
   Send,
   X,
   CheckCircle,
+  MessageCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../NavbarComponent/Navbar";
 
 type Usuario = {
@@ -31,6 +33,7 @@ type Amistad = {
 const AVATAR = "https://i.pinimg.com/736x/08/0a/fb/080afbcc2ed1022bbdc59446190164d8.jpg";
 
 export default function FriendsPage() {
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userId = user._id || user.id;
   const token = localStorage.getItem("token");
@@ -174,7 +177,7 @@ export default function FriendsPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
       <Navbar title="Amistades" />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
@@ -278,13 +281,23 @@ export default function FriendsPage() {
                         <CheckCircle className="w-3 h-3" /> Amigos desde {new Date(amistad.createdAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <button
-                      onClick={() => eliminarAmigo(amistad._id)}
-                      className="shrink-0 w-9 h-9 rounded-xl border border-red-200 hover:bg-red-50 flex items-center justify-center transition"
-                      title="Eliminar amistad"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-400" />
-                    </button>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => navigate(`/mensajes/${otro._id}`)}
+                        className="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/30 text-white font-semibold px-4 py-2 rounded-xl text-sm transition"
+                        title="Enviar mensaje"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        <span className="hidden sm:inline">Mensaje</span>
+                      </button>
+                      <button
+                        onClick={() => eliminarAmigo(amistad._id)}
+                        className="w-9 h-9 rounded-xl border border-red-200 hover:bg-red-50 flex items-center justify-center transition shrink-0"
+                        title="Eliminar amistad"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-400" />
+                      </button>
+                    </div>
                   </div>
                 );
               })
