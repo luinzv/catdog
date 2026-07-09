@@ -10,3 +10,4 @@ export { default as MapPage } from './MapPageComponent/MapPage';
 export { default as DashboardPage } from './DashboardPageComponent/DashboardPage';
 export { default as Navbar } from './NavbarComponent/Navbar';
 export { default as SettingsPage } from './SettingsPageComponent/SettingsPage';
+export { default as FriendsPage } from './FriendspageComponent/FriendsPage';

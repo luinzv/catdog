@@ -9,6 +9,7 @@ import alergiasRoutes from "./routes/alergiasRoutes.js";
 import recordatorioRoutes from "./routes/recordatorioRoutes.js";
 import mascotaPerdidaRoutes from "./routes/mascotaPerdidaRoutes.js";
 import intervencionRoutes from "./routes/intervencionRoutes.js";
+import amistadRoutes from "./routes/amistadRoutes.js";
 import cors from "cors";
 import { limpiarMascotasEncontradas } from "./utils/limpiarEncontradas.js";
 
@@ -32,6 +33,7 @@ app.use("/api/vacunas", vacunasRoutes);
 app.use("/api/alergias", alergiasRoutes);
 app.use("/api/intervenciones", intervencionRoutes);
 app.use("/api/mascotas-perdidas", mascotaPerdidaRoutes);
+app.use("/api/amistades", amistadRoutes);
 
 app.get("/", (req, res) => {
   res.send("catdog API funcionando");
