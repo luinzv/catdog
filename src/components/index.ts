@@ -12,3 +12,4 @@ export { default as Navbar } from './NavbarComponent/Navbar';
 export { default as SettingsPage } from './SettingsPageComponent/SettingsPage';
 export { default as FriendsPage } from './FriendspageComponent/FriendsPage';
 export { default as ChatPage } from './ChatPageComponent/Chatpage';
+export { default as SearchGroupsPage } from './SearchgroupsPageComponent/SearchgroupsPage';

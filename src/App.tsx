@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css'
-import {Dashboard, UserProfile, PetMedicalRecord, PetReminders, UserWelcome, PetProfile, LostPetsComponent, AlertsPage, MapPage, DashboardPage, SettingsPage, FriendsPage, ChatPage} from './components/index';
+import {Dashboard, UserProfile, PetMedicalRecord, PetReminders, UserWelcome, PetProfile, LostPetsComponent, AlertsPage, MapPage, DashboardPage, SettingsPage, FriendsPage, ChatPage, SearchGroupsPage} from './components/index';
 import PrivateRoute from '../backend/routes/PrivateRoute';
 
 function App() {
@@ -68,6 +68,11 @@ function App() {
         <Route path="/mensajes/:amigoId" element={
           <PrivateRoute>
             <ChatPage />
+          </PrivateRoute>
+        } />
+        <Route path="/grupos" element={
+          <PrivateRoute>
+            <SearchGroupsPage />
           </PrivateRoute>
         } />
       </Routes>
